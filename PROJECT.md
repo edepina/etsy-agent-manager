@@ -13,7 +13,7 @@
 **Stack:** FastAPI + Jinja2 + Maxton (Bootstrap 5) + PostgreSQL + Redis + Celery + Claude API  
 **Repo:** https://github.com/edepina/etsy-agent-manager  
 **Hosted:** Hetzner VPS (Docker Compose)  
-**Domain:** TBD
+**Domain:** http://cciesolutions.net:8000
 
 ---
 
@@ -224,7 +224,7 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 7.1 | Add authentication to dashboard (even basic auth) | ⬜ | |
+| 7.1 | Add authentication to dashboard | ✅ | Session-based auth, bcrypt, brute-force protection, change password |
 | 7.2 | HTTPS via Let's Encrypt / Caddy | ⬜ | |
 | 7.3 | Custom domain setup | ⬜ | |
 | 7.4 | Error monitoring (Sentry or similar) | ⬜ | |
@@ -251,7 +251,7 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 
 | Resource | URL |
 |---|---|
-| GitHub Repo | TBD |
+| GitHub Repo | https://github.com/edepina/etsy-agent-manager |
 | Etsy API v3 Docs | https://developer.etsy.com/documentation |
 | Etsy Seller Dashboard | https://www.etsy.com/your/shops/me/dashboard |
 | Anthropic API Docs | https://docs.anthropic.com |
@@ -265,6 +265,8 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 | Date | Change |
 |---|---|
 | 2026-04-09 | Project created. Architecture defined. Phase 0 started. |
+| 2026-04-09 | Phase 0 complete. Dashboard live with Maxton Blue Theme, mock data seeded. |
+| 2026-04-09 | Authentication implemented. Session-based login, brute-force protection, change password page. |
 
 ---
 

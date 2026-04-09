@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 
@@ -6,12 +6,13 @@ from app.database import get_db
 from app.models.agent import AgentRun
 from app.models.product import Product
 from app.models.metric import DailyMetric
+from app.auth import api_login_required
 
 router = APIRouter(prefix="/api")
 
 
-@router.get("/agents/status")
-async def agents_status(db: AsyncSession = Depends(get_db)):
+@router.get("/api/agents/status")
+async def get_agent_status(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     agent_types = ["research", "content", "design", "listing", "analytics"]
     statuses = {}
 
@@ -37,8 +38,8 @@ async def agents_status(db: AsyncSession = Depends(get_db)):
     return {"agents": statuses, "pending_reviews": pending_reviews}
 
 
-@router.get("/dashboard/stats")
-async def dashboard_stats(db: AsyncSession = Depends(get_db)):
+@router.get("/api/dashboard/stats")
+async def get_dashboard_stats(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     total_products = await db.scalar(select(func.count(Product.id))) or 0
     pending_reviews = await db.scalar(
         select(func.count(Product.id)).where(Product.stage == "review")
@@ -65,8 +66,8 @@ async def dashboard_stats(db: AsyncSession = Depends(get_db)):
     }
 
 
-@router.get("/metrics/chart")
-async def metrics_chart(days: int = 30, db: AsyncSession = Depends(get_db)):
+@router.get("/api/metrics/chart")
+async def get_metrics_chart(request: Request, days: int = 30, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     result = await db.execute(
         select(DailyMetric).order_by(desc(DailyMetric.date)).limit(days)
     )
@@ -80,8 +81,8 @@ async def metrics_chart(days: int = 30, db: AsyncSession = Depends(get_db)):
     }
 
 
-@router.get("/queue/count")
-async def queue_count(db: AsyncSession = Depends(get_db)):
+@router.get("/api/queue/count")
+async def get_queue_count(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     count = await db.scalar(
         select(func.count(Product.id)).where(Product.stage == "review")
     ) or 0

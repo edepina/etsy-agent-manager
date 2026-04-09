@@ -76,13 +76,24 @@ docker-compose exec app alembic upgrade head
 docker-compose exec app python -m app.seed
 ```
 
-### 5. Open dashboard
+### 5. Set admin password
 
-Visit `http://localhost:8000`
+```bash
+# Generate a bcrypt hash for your password
+docker compose exec app python -m app.generate_password_hash yourpassword
+# Write the hash to the data directory
+echo '<hash>' > data/admin_password_hash.txt
+```
+
+### 6. Open dashboard
+
+Visit `http://localhost:8000` — you will be redirected to the login page.
 
 ## Status
 
 - ✅ Fully functional dashboard with Maxton Vertical Menu Blue Theme
+- ✅ Session-based authentication with brute-force protection
+- ✅ Change password page (Maxton template styled)
 - ✅ All templates styled and responsive
 - ✅ Database seeded with mock data
 - ✅ Docker Compose multi-service setup
@@ -92,3 +103,11 @@ Visit `http://localhost:8000`
 ## Environment Variables
 
 See `.env.example` for all required variables.
+
+## Authentication
+
+- Login at `/login` with your admin credentials
+- Change password via the user menu → **Change Password**
+- Password hash stored in `data/admin_password_hash.txt` (bind-mounted, persists across restarts)
+- Sessions expire after 24 hours (configurable via `SESSION_TIMEOUT_HOURS` in `.env`)
+- Brute-force protection: 5 failed attempts locks the IP for 15 minutes

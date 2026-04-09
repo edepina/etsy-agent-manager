@@ -7,7 +7,8 @@ services:
     volumes:
       - ./static:/app/static
       - ./products:/app/products
-      - ./app/templates:/app/app/templates
+      - ./app:/app/app
+      - ./data:/app/data
     depends_on:
       db:
         condition: service_healthy

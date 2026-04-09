@@ -5,6 +5,7 @@ from sqlalchemy import select, desc
 
 from app.database import get_db
 from app.models.product import Product
+from app.auth import login_required
 
 router = APIRouter(prefix="/products")
 templates = Jinja2Templates(directory="app/templates")
@@ -16,6 +17,7 @@ async def products_pipeline(
     stage: str = None,
     niche: str = None,
     db: AsyncSession = Depends(get_db),
+    user: str = Depends(login_required),
 ):
     query = select(Product).order_by(desc(Product.created_at))
 
@@ -48,7 +50,7 @@ async def products_pipeline(
 
 
 @router.get("/{product_id}")
-async def product_detail(product_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+async def product_detail(product_id: int, request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(login_required)):
     product = await db.get(Product, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")

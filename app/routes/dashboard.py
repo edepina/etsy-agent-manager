@@ -7,13 +7,14 @@ from app.database import get_db
 from app.models.agent import AgentRun
 from app.models.product import Product
 from app.models.metric import DailyMetric
+from app.auth import login_required
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/")
-async def dashboard(request: Request, db: AsyncSession = Depends(get_db)):
+async def dashboard(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(login_required)):
     total_products = await db.scalar(select(func.count(Product.id)))
     pending_reviews = await db.scalar(
         select(func.count(Product.id)).where(Product.stage == "review")

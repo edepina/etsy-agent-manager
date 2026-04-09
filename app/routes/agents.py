@@ -6,6 +6,7 @@ from sqlalchemy import select, func, desc
 
 from app.database import get_db
 from app.models.agent import AgentRun
+from app.auth import login_required
 
 router = APIRouter(prefix="/agents")
 templates = Jinja2Templates(directory="app/templates")
@@ -55,7 +56,7 @@ AGENT_DEFINITIONS = [
 
 
 @router.get("")
-async def agents_overview(request: Request, db: AsyncSession = Depends(get_db)):
+async def agents_overview(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(login_required)):
     agents_with_stats = []
     for agent_def in AGENT_DEFINITIONS:
         last_run = await db.execute(
@@ -96,7 +97,7 @@ async def agents_overview(request: Request, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{agent_type}")
-async def agent_detail(agent_type: str, request: Request, db: AsyncSession = Depends(get_db)):
+async def agent_detail(agent_type: str, request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(login_required)):
     agent_def = next((a for a in AGENT_DEFINITIONS if a["type"] == agent_type), None)
     if not agent_def:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -130,7 +131,7 @@ async def agent_detail(agent_type: str, request: Request, db: AsyncSession = Dep
 
 
 @router.post("/{agent_type}/trigger")
-async def trigger_agent(agent_type: str, db: AsyncSession = Depends(get_db)):
+async def trigger_agent(agent_type: str, db: AsyncSession = Depends(get_db), user: str = Depends(login_required)):
     agent_def = next((a for a in AGENT_DEFINITIONS if a["type"] == agent_type), None)
     if not agent_def:
         raise HTTPException(status_code=404, detail="Agent not found")

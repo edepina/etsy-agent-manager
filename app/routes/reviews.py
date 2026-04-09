@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,13 +6,14 @@ from sqlalchemy import select, desc, update
 
 from app.database import get_db
 from app.models.product import Product
+from app.auth import login_required
 
 router = APIRouter(prefix="/reviews")
 templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("")
-async def review_queue(request: Request, db: AsyncSession = Depends(get_db)):
+async def review_queue(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(login_required)):
     result = await db.execute(
         select(Product).where(Product.stage == "review").order_by(desc(Product.created_at))
     )

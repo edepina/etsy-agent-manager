@@ -7,13 +7,14 @@ from app.database import get_db
 from app.models.metric import DailyMetric
 from app.models.agent import AgentRun
 from app.models.product import Product
+from app.auth import login_required
 
 router = APIRouter(prefix="/analytics")
 templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("")
-async def analytics(request: Request, db: AsyncSession = Depends(get_db)):
+async def analytics(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(login_required)):
     result = await db.execute(
         select(DailyMetric).order_by(desc(DailyMetric.date)).limit(30)
     )
