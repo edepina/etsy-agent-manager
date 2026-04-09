@@ -95,9 +95,11 @@
               {% if product.stage == 'review' %}
               <div class="d-flex gap-1">
                 <form action="/reviews/{{ product.id }}/approve" method="post">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                   <button type="submit" class="btn btn-sm btn-success">Approve</button>
                 </form>
                 <form action="/reviews/{{ product.id }}/reject" method="post">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                   <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
                 </form>
               </div>

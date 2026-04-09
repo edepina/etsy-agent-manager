@@ -6,7 +6,7 @@ from sqlalchemy import select, desc, update
 
 from app.database import get_db
 from app.models.product import Product
-from app.auth import login_required
+from app.auth import login_required, generate_csrf_token, validate_csrf_token
 
 router = APIRouter(prefix="/reviews")
 templates = Jinja2Templates(directory="app/templates")
@@ -26,12 +26,21 @@ async def review_queue(request: Request, db: AsyncSession = Depends(get_db), use
             "items": items,
             "count": len(items),
             "active_page": "reviews",
+            "csrf_token": generate_csrf_token(request),
         },
     )
 
 
 @router.post("/{product_id}/approve")
-async def approve_product(product_id: int, db: AsyncSession = Depends(get_db)):
+async def approve_product(
+    request: Request,
+    product_id: int,
+    csrf_token: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+    user: str = Depends(login_required),
+):
+    if not validate_csrf_token(request, csrf_token):
+        raise HTTPException(status_code=403, detail="Invalid CSRF token")
     product = await db.get(Product, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -44,7 +53,15 @@ async def approve_product(product_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/{product_id}/reject")
-async def reject_product(product_id: int, db: AsyncSession = Depends(get_db)):
+async def reject_product(
+    request: Request,
+    product_id: int,
+    csrf_token: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+    user: str = Depends(login_required),
+):
+    if not validate_csrf_token(request, csrf_token):
+        raise HTTPException(status_code=403, detail="Invalid CSRF token")
     product = await db.get(Product, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")

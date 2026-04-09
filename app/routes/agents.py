@@ -1,15 +1,18 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.models.agent import AgentRun
-from app.auth import login_required
+from app.auth import login_required, generate_csrf_token, validate_csrf_token
 
 router = APIRouter(prefix="/agents")
 templates = Jinja2Templates(directory="app/templates")
+limiter = Limiter(key_func=get_remote_address)
 
 AGENT_DEFINITIONS = [
     {
@@ -92,6 +95,7 @@ async def agents_overview(request: Request, db: AsyncSession = Depends(get_db), 
             "request": request,
             "agents": agents_with_stats,
             "active_page": "agents",
+            "csrf_token": generate_csrf_token(request),
         },
     )
 
@@ -126,12 +130,22 @@ async def agent_detail(agent_type: str, request: Request, db: AsyncSession = Dep
             "total_cost": round(total_cost, 4),
             "total_tokens": total_tokens,
             "active_page": "agents",
+            "csrf_token": generate_csrf_token(request),
         },
     )
 
 
 @router.post("/{agent_type}/trigger")
-async def trigger_agent(agent_type: str, db: AsyncSession = Depends(get_db), user: str = Depends(login_required)):
+@limiter.limit("10/minute")
+async def trigger_agent(
+    request: Request,
+    agent_type: str,
+    csrf_token: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+    user: str = Depends(login_required),
+):
+    if not validate_csrf_token(request, csrf_token):
+        raise HTTPException(status_code=403, detail="Invalid CSRF token")
     agent_def = next((a for a in AGENT_DEFINITIONS if a["type"] == agent_type), None)
     if not agent_def:
         raise HTTPException(status_code=404, detail="Agent not found")

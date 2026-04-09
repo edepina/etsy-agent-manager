@@ -5,7 +5,7 @@ from sqlalchemy import select, desc
 
 from app.database import get_db
 from app.models.product import Product
-from app.auth import login_required
+from app.auth import login_required, generate_csrf_token
 
 router = APIRouter(prefix="/products")
 templates = Jinja2Templates(directory="app/templates")
@@ -45,6 +45,7 @@ async def products_pipeline(
             "selected_stage": stage,
             "selected_niche": niche,
             "active_page": "products",
+            "csrf_token": generate_csrf_token(request),
         },
     )
 

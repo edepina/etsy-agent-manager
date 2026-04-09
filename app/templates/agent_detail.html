@@ -16,6 +16,7 @@
   </div>
   <div class="ms-auto">
     <form action="/agents/{{ agent.type }}/trigger" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <button type="submit" class="btn btn-primary">
         <span class="material-icons-outlined me-1" style="vertical-align:middle;">play_arrow</span>Trigger Now
       </button>

@@ -47,11 +47,13 @@
       </div>
       <div class="card-footer bg-transparent d-flex gap-2">
         <form action="/reviews/{{ item.id }}/approve" method="post" class="flex-grow-1">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <button type="submit" class="btn btn-success w-100">
             <span class="material-icons-outlined me-1" style="vertical-align:middle;">check_circle</span>Approve
           </button>
         </form>
         <form action="/reviews/{{ item.id }}/reject" method="post" class="flex-grow-1">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <button type="submit" class="btn btn-outline-danger w-100">
             <span class="material-icons-outlined me-1" style="vertical-align:middle;">cancel</span>Reject
           </button>

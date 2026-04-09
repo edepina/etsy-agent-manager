@@ -15,6 +15,7 @@
   </div>
   <div class="ms-auto">
     <form action="/agents/research/trigger" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <button type="submit" class="btn btn-primary">
         <span class="material-icons-outlined me-1" style="vertical-align:middle;">play_arrow</span>Run Full Pipeline
       </button>
@@ -64,6 +65,7 @@
           <small class="text-secondary flex-grow-1"><span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">schedule</span> {{ agent.schedule }}</small>
           <a href="/agents/{{ agent.type }}" class="btn btn-sm btn-outline-secondary">Details</a>
           <form action="/agents/{{ agent.type }}/trigger" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button type="submit" class="btn btn-sm btn-outline-primary">
               <span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">play_arrow</span> Run
             </button>
