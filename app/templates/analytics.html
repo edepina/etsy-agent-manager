@@ -3,7 +3,6 @@
 {% block title %}Analytics — Etsy Agent Manager{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/assets/plugins/apexcharts-bundle/css/apexcharts.css">
 {% endblock %}
 
 {% block content %}
@@ -22,7 +21,7 @@
 <!-- KPI cards -->
 <div class="row row-cols-2 row-cols-xl-4 g-3 mb-3">
   <div class="col">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-body">
         <div class="d-flex align-items-center">
           <div>
@@ -37,7 +36,7 @@
     </div>
   </div>
   <div class="col">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-body">
         <div class="d-flex align-items-center">
           <div>
@@ -52,7 +51,7 @@
     </div>
   </div>
   <div class="col">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-body">
         <div class="d-flex align-items-center">
           <div>
@@ -67,7 +66,7 @@
     </div>
   </div>
   <div class="col">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-body">
         <div class="d-flex align-items-center">
           <div>
@@ -86,7 +85,7 @@
 <!-- Charts -->
 <div class="row mb-3">
   <div class="col-12 col-xl-8">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-header bg-transparent">
         <h5 class="mb-0">Revenue & Views (30 days)</h5>
       </div>
@@ -96,7 +95,7 @@
     </div>
   </div>
   <div class="col-12 col-xl-4">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-header bg-transparent">
         <h5 class="mb-0">Top Niches</h5>
       </div>
@@ -108,7 +107,7 @@
             <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
           </li>
           {% else %}
-          <li class="list-group-item text-center text-muted">No data yet</li>
+          <li class="list-group-item text-center text-secondary">No data yet</li>
           {% endfor %}
         </ul>
       </div>
@@ -117,14 +116,14 @@
 </div>
 
 <!-- Agent breakdown -->
-<div class="card radius-10">
+<div class="card rounded-4">
   <div class="card-header bg-transparent">
     <h5 class="mb-0">Agent Cost Breakdown</h5>
   </div>
   <div class="card-body p-0">
     <div class="table-responsive">
-      <table class="table table-hover mb-0">
-        <thead class="table-light">
+      <table class="table align-middle mb-0 table-striped">
+        <thead>
           <tr>
             <th>Agent</th>
             <th>Total Runs</th>
@@ -141,7 +140,7 @@
             <td>${{ "%.6f"|format(row.cost / row.runs if row.runs else 0) }}</td>
           </tr>
           {% else %}
-          <tr><td colspan="4" class="text-center text-muted py-3">No agent runs yet</td></tr>
+          <tr><td colspan="4" class="text-center text-secondary py-3">No agent runs yet</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -151,7 +150,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/assets/plugins/apexcharts-bundle/js/apexcharts.min.js"></script>
+<script src="/static/assets/plugins/apexchart/apexcharts.min.js"></script>
 <script>
   var analyticsChart = new ApexCharts(document.querySelector("#chart-analytics"), {
     chart: { type: 'line', height: 300, toolbar: { show: false } },

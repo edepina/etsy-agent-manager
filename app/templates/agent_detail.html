@@ -26,48 +26,48 @@
 <!-- Stats row -->
 <div class="row row-cols-2 row-cols-xl-4 g-3 mb-3">
   <div class="col">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-body text-center">
         <h3 class="text-success">{{ success_count }}</h3>
-        <small class="text-muted">Successful Runs</small>
+        <small class="text-secondary">Successful Runs</small>
       </div>
     </div>
   </div>
   <div class="col">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-body text-center">
         <h3 class="text-danger">{{ fail_count }}</h3>
-        <small class="text-muted">Failed Runs</small>
+        <small class="text-secondary">Failed Runs</small>
       </div>
     </div>
   </div>
   <div class="col">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-body text-center">
         <h3 class="text-primary">{{ total_tokens }}</h3>
-        <small class="text-muted">Total Tokens Used</small>
+        <small class="text-secondary">Total Tokens Used</small>
       </div>
     </div>
   </div>
   <div class="col">
-    <div class="card radius-10">
+    <div class="card rounded-4">
       <div class="card-body text-center">
         <h3 class="text-warning">${{ "%.4f"|format(total_cost) }}</h3>
-        <small class="text-muted">Total Cost</small>
+        <small class="text-secondary">Total Cost</small>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Run history -->
-<div class="card radius-10">
+<div class="card rounded-4">
   <div class="card-header bg-transparent">
     <h5 class="mb-0">Run History</h5>
   </div>
   <div class="card-body p-0">
     <div class="table-responsive">
-      <table class="table table-hover mb-0" id="runs-table">
-        <thead class="table-light">
+      <table class="table align-middle mb-0 table-striped" id="runs-table">
+        <thead>
           <tr>
             <th>#</th>
             <th>Status</th>
@@ -91,14 +91,14 @@
               <span class="badge bg-warning">{{ run.status }}</span>
               {% endif %}
             </td>
-            <td class="font-13 text-muted">{{ run.started_at.strftime('%Y-%m-%d %H:%M:%S') if run.started_at else '—' }}</td>
-            <td class="font-13 text-muted">{{ run.completed_at.strftime('%H:%M:%S') if run.completed_at else '—' }}</td>
+            <td class="font-13 text-secondary">{{ run.started_at.strftime('%Y-%m-%d %H:%M:%S') if run.started_at else '—' }}</td>
+            <td class="font-13 text-secondary">{{ run.completed_at.strftime('%H:%M:%S') if run.completed_at else '—' }}</td>
             <td>{{ run.tokens_used or 0 }}</td>
             <td>${{ "%.4f"|format(run.cost or 0) }}</td>
             <td><small class="text-danger">{{ run.error[:60] + '…' if run.error and run.error|length > 60 else run.error or '' }}</small></td>
           </tr>
           {% else %}
-          <tr><td colspan="7" class="text-center text-muted py-3">No runs yet</td></tr>
+          <tr><td colspan="7" class="text-center text-secondary py-3">No runs yet</td></tr>
           {% endfor %}
         </tbody>
       </table>

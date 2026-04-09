@@ -1,45 +1,44 @@
 <header class="top-header">
-  <nav class="navbar navbar-expand">
+  <nav class="navbar navbar-expand align-items-center gap-4">
+    <div class="btn-toggle">
+      <a href="javascript:;"><i class="material-icons-outlined">menu</i></a>
+    </div>
 
-    <div class="mobile-toggle-menu"><i class="bx bx-menu"></i></div>
+    <div class="search-bar flex-grow-1"></div>
 
-    <div class="search-bar flex-grow-1 d-none d-lg-flex"></div>
-
-    <div class="top-menu-right ms-3">
-      <ul class="navbar-nav align-items-center">
+    <div class="top-menu-right ms-auto">
+      <ul class="navbar-nav align-items-center gap-1">
 
         <!-- Agent status indicators -->
-        <li class="nav-item d-none d-md-flex align-items-center me-2" id="agent-status-bar">
+        <li class="nav-item d-none d-md-flex align-items-center" id="agent-status-bar">
           {% set agent_icons = {'research': 'search', 'content': 'edit_note', 'design': 'design_services', 'listing': 'storefront', 'analytics': 'bar_chart'} %}
           {% for agent_type, icon in agent_icons.items() %}
           <span class="badge bg-secondary me-1 agent-status-badge" data-agent="{{ agent_type }}" title="{{ agent_type|title }} Agent">
-            <span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">{{ icon }}</span>
+            <i class="material-icons-outlined" style="font-size:13px;vertical-align:middle;">{{ icon }}</i>
           </span>
           {% endfor %}
         </li>
 
         <!-- Review queue bell -->
-        <li class="nav-item dropdown dropdown-large">
-          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="/reviews" title="Review Queue">
-            <span class="material-icons-outlined">notifications</span>
-            <span class="badge-notify" id="queue-count-badge">...</span>
+        <li class="nav-item">
+          <a class="nav-link position-relative" href="/reviews" title="Review Queue">
+            <i class="material-icons-outlined">notifications</i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="queue-count-badge" style="font-size:10px;">...</span>
           </a>
         </li>
 
         <!-- User menu -->
-        <li class="nav-item dropdown dropdown-user-setting">
-          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
-            <div class="user-setting d-flex align-items-center gap-1">
-              <div class="flex-grow-1">
-                <p class="user-name mb-0 ms-2">Edson</p>
-              </div>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+            <div class="user-setting">
+              <span class="fw-semibold">Edson</span>
             </div>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#"><span class="material-icons-outlined me-2">manage_accounts</span>Profile</a></li>
-            <li><a class="dropdown-item" href="#"><span class="material-icons-outlined me-2">settings</span>Settings</a></li>
+            <li><a class="dropdown-item" href="#"><i class="material-icons-outlined me-2 fs-5">manage_accounts</i>Profile</a></li>
+            <li><a class="dropdown-item" href="#"><i class="material-icons-outlined me-2 fs-5">settings</i>Settings</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#"><span class="material-icons-outlined me-2">logout</span>Logout</a></li>
+            <li><a class="dropdown-item" href="#"><i class="material-icons-outlined me-2 fs-5">logout</i>Logout</a></li>
           </ul>
         </li>
 

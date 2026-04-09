@@ -25,7 +25,7 @@
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
   {% for agent in agents %}
   <div class="col">
-    <div class="card radius-10 h-100">
+    <div class="card rounded-4 h-100">
       <div class="card-body">
         <div class="d-flex align-items-start mb-3">
           <div class="widget-icon bg-light-primary text-primary me-3">
@@ -33,7 +33,7 @@
           </div>
           <div class="flex-grow-1">
             <h6 class="mb-1">{{ agent.name }}</h6>
-            <small class="text-muted">{{ agent.description }}</small>
+            <small class="text-secondary">{{ agent.description }}</small>
           </div>
           <span class="badge ms-2
             {% if agent.status == 'running' %}bg-success
@@ -48,20 +48,20 @@
         <div class="row text-center mb-3">
           <div class="col-4 border-end">
             <div class="fw-semibold text-success">{{ agent.success_count }}</div>
-            <small class="text-muted">Success</small>
+            <small class="text-secondary">Success</small>
           </div>
           <div class="col-4 border-end">
             <div class="fw-semibold text-danger">{{ agent.fail_count }}</div>
-            <small class="text-muted">Failed</small>
+            <small class="text-secondary">Failed</small>
           </div>
           <div class="col-4">
-            <div class="fw-semibold text-muted font-13">{{ agent.last_run.started_at.strftime('%b %d') if agent.last_run and agent.last_run.started_at else 'Never' }}</div>
-            <small class="text-muted">Last Run</small>
+            <div class="fw-semibold text-secondary font-13">{{ agent.last_run.started_at.strftime('%b %d') if agent.last_run and agent.last_run.started_at else 'Never' }}</div>
+            <small class="text-secondary">Last Run</small>
           </div>
         </div>
 
         <div class="d-flex align-items-center gap-2">
-          <small class="text-muted flex-grow-1"><span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">schedule</span> {{ agent.schedule }}</small>
+          <small class="text-secondary flex-grow-1"><span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">schedule</span> {{ agent.schedule }}</small>
           <a href="/agents/{{ agent.type }}" class="btn btn-sm btn-outline-secondary">Details</a>
           <form action="/agents/{{ agent.type }}/trigger" method="post">
             <button type="submit" class="btn btn-sm btn-outline-primary">
