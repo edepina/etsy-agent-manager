@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.models.agent import AgentRun
@@ -9,9 +11,11 @@ from app.models.metric import DailyMetric
 from app.auth import api_login_required
 
 router = APIRouter(prefix="/api")
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.get("/api/agents/status")
+@limiter.limit("60/minute")
 async def get_agent_status(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     agent_types = ["research", "content", "design", "listing", "analytics"]
     statuses = {}
@@ -39,6 +43,7 @@ async def get_agent_status(request: Request, db: AsyncSession = Depends(get_db),
 
 
 @router.get("/api/dashboard/stats")
+@limiter.limit("60/minute")
 async def get_dashboard_stats(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     total_products = await db.scalar(select(func.count(Product.id))) or 0
     pending_reviews = await db.scalar(
@@ -67,6 +72,7 @@ async def get_dashboard_stats(request: Request, db: AsyncSession = Depends(get_d
 
 
 @router.get("/api/metrics/chart")
+@limiter.limit("60/minute")
 async def get_metrics_chart(request: Request, days: int = 30, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     result = await db.execute(
         select(DailyMetric).order_by(desc(DailyMetric.date)).limit(days)
@@ -82,6 +88,7 @@ async def get_metrics_chart(request: Request, days: int = 30, db: AsyncSession =
 
 
 @router.get("/api/queue/count")
+@limiter.limit("60/minute")
 async def get_queue_count(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     count = await db.scalar(
         select(func.count(Product.id)).where(Product.stage == "review")

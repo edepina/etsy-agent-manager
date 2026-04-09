@@ -47,8 +47,8 @@ async def login_required(request: Request) -> str:
     """Dependency that redirects to login if not authenticated."""
     user = await get_current_user(request)
     if user is None:
-        from fastapi.responses import RedirectResponse
-        return RedirectResponse(url="/login", status_code=302)
+        from starlette.responses import RedirectResponse
+        raise HTTPException(status_code=302, headers={"Location": "/login"})
     return user
 
 
@@ -111,3 +111,22 @@ async def reset_login_attempts(redis_client, ip_address: str):
     block_key = f"login_blocked:{ip_address}"
     await redis_client.delete(key)
     await redis_client.delete(block_key)
+
+
+def generate_csrf_token(request: Request) -> str:
+    """Generate a CSRF token and store it in the session."""
+    import secrets
+    token = request.session.get("csrf_token")
+    if not token:
+        token = secrets.token_hex(32)
+        request.session["csrf_token"] = token
+    return token
+
+
+def validate_csrf_token(request: Request, submitted_token: str) -> bool:
+    """Validate the submitted CSRF token against the session token."""
+    session_token = request.session.get("csrf_token")
+    if not session_token or not submitted_token:
+        return False
+    import hmac
+    return hmac.compare_digest(session_token, submitted_token)

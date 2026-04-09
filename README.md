@@ -87,12 +87,17 @@ echo '<hash>' > data/admin_password_hash.txt
 
 ### 6. Open dashboard
 
-Visit `http://localhost:8000` — you will be redirected to the login page.
+Visit `https://etsy.cciesolutions.net` (or `http://localhost:8000` locally) — you will be redirected to the login page.
 
 ## Status
 
 - ✅ Fully functional dashboard with Maxton Vertical Menu Blue Theme
+- ✅ HTTPS via Let's Encrypt (Caddy) at https://etsy.cciesolutions.net
 - ✅ Session-based authentication with brute-force protection
+- ✅ CSRF protection on all forms
+- ✅ Rate limiting (slowapi) — 10/min login, 60/min API
+- ✅ Security headers via Caddy (HSTS, CSP, X-Frame-Options)
+- ✅ Redis and PostgreSQL not exposed publicly
 - ✅ Change password page (Maxton template styled)
 - ✅ All templates styled and responsive
 - ✅ Database seeded with mock data
@@ -104,10 +109,20 @@ Visit `http://localhost:8000` — you will be redirected to the login page.
 
 See `.env.example` for all required variables.
 
-## Authentication
+## Authentication & Security
 
 - Login at `/login` with your admin credentials
 - Change password via the user menu → **Change Password**
 - Password hash stored in `data/admin_password_hash.txt` (bind-mounted, persists across restarts)
 - Sessions expire after 24 hours (configurable via `SESSION_TIMEOUT_HOURS` in `.env`)
 - Brute-force protection: 5 failed attempts locks the IP for 15 minutes
+- CSRF tokens on all POST forms
+- Rate limiting: 10 req/min on login, 60 req/min on API endpoints
+- Set `DEBUG=false` in `.env` for production to enable HTTPS-only cookies and disable `/docs`
+
+## Infrastructure
+
+- Reverse proxy: host Caddy container (`etsy.cciesolutions.net` block in `/opt/cciesolutions/Caddyfile`)
+- Caddy joined to `etsy-agent-manager_net` Docker network to reach the app container
+- App port only exposed internally — not publicly accessible
+- To reload Caddy after Caddyfile changes: `docker exec caddy caddy reload --config /etc/caddy/Caddyfile`

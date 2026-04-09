@@ -1,8 +1,14 @@
+networks:
+  etsy-net:
+    name: etsy-agent-manager_net
+
 services:
   app:
     build: .
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
+    networks:
+      - etsy-net
     env_file: .env
     volumes:
       - ./static:/app/static
@@ -19,6 +25,8 @@ services:
   worker:
     build: .
     command: celery -A app.tasks.celery_app worker --loglevel=info
+    networks:
+      - etsy-net
     env_file: .env
     volumes:
       - ./products:/app/products
@@ -32,6 +40,8 @@ services:
   beat:
     build: .
     command: celery -A app.tasks.celery_app beat --loglevel=info
+    networks:
+      - etsy-net
     env_file: .env
     depends_on:
       db:
@@ -42,6 +52,8 @@ services:
 
   db:
     image: postgres:16-alpine
+    networks:
+      - etsy-net
     environment:
       POSTGRES_DB: etsy_agents
       POSTGRES_USER: edson
@@ -57,8 +69,8 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    networks:
+      - etsy-net
     restart: unless-stopped
 
 volumes:

@@ -13,7 +13,7 @@
 **Stack:** FastAPI + Jinja2 + Maxton (Bootstrap 5) + PostgreSQL + Redis + Celery + Claude API  
 **Repo:** https://github.com/edepina/etsy-agent-manager  
 **Hosted:** Hetzner VPS (Docker Compose)  
-**Domain:** http://cciesolutions.net:8000
+**Domain:** https://etsy.cciesolutions.net
 
 ---
 
@@ -225,13 +225,25 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 | # | Task | Status | Notes |
 |---|---|---|---|
 | 7.1 | Add authentication to dashboard | ✅ | Session-based auth, bcrypt, brute-force protection, change password |
-| 7.2 | HTTPS via Let's Encrypt / Caddy | ⬜ | |
-| 7.3 | Custom domain setup | ⬜ | |
+| 7.2 | HTTPS via Let's Encrypt / Caddy | ✅ | Host Caddy container with auto cert for etsy.cciesolutions.net |
+| 7.3 | Custom domain setup | ✅ | etsy.cciesolutions.net subdomain, A record pointing to VPS |
 | 7.4 | Error monitoring (Sentry or similar) | ⬜ | |
 | 7.5 | Backup strategy — DB dumps, product files | ⬜ | |
 | 7.6 | Expand product types based on analytics | ⬜ | |
 | 7.7 | A/B test listing copy | ⬜ | |
 | 7.8 | Multi-niche expansion (beyond Islamic products?) | ⬜ | |
+
+### Security Hardening ✅
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| S.1 | HTTPS via host Caddy + Let's Encrypt | ✅ | etsy.cciesolutions.net with auto cert |
+| S.2 | Redis and PostgreSQL ports locked down | ✅ | No public port exposure, internal Docker network only |
+| S.3 | Secure session cookies (https_only) | ✅ | Enabled when DEBUG=false |
+| S.4 | Rate limiting on login and API endpoints | ✅ | slowapi — 10/min login, 60/min API |
+| S.5 | CSRF protection on all forms | ✅ | Token generated in session, validated on every POST |
+| S.6 | API docs disabled in production | ✅ | /docs and /redoc return 404 when DEBUG=false |
+| S.7 | Security headers | ✅ | Caddy sets HSTS, CSP, X-Frame-Options, etc |
 
 ---
 
@@ -267,6 +279,7 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 | 2026-04-09 | Project created. Architecture defined. Phase 0 started. |
 | 2026-04-09 | Phase 0 complete. Dashboard live with Maxton Blue Theme, mock data seeded. |
 | 2026-04-09 | Authentication implemented. Session-based login, brute-force protection, change password page. |
+| 2026-04-09 | Security hardening complete. HTTPS live at https://etsy.cciesolutions.net, CSRF, rate limiting, locked ports. |
 
 ---
 

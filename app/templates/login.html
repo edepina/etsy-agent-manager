@@ -61,6 +61,7 @@
 
               <div class="form-body mt-4">
                 <form method="post" action="/login" class="row g-3">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                   <div class="col-12">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required autofocus>
