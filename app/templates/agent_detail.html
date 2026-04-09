@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}{{ agent.name }} — Etsy Agent Manager{% endblock %}
+
+{% block content %}
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">{{ agent.name }}</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item"><a href="/"><span class="material-icons-outlined">home</span></a></li>
+        <li class="breadcrumb-item"><a href="/agents">Agents</a></li>
+        <li class="breadcrumb-item active">{{ agent.name }}</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="ms-auto">
+    <form action="/agents/{{ agent.type }}/trigger" method="post">
+      <button type="submit" class="btn btn-primary">
+        <span class="material-icons-outlined me-1" style="vertical-align:middle;">play_arrow</span>Trigger Now
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Stats row -->
+<div class="row row-cols-2 row-cols-xl-4 g-3 mb-3">
+  <div class="col">
+    <div class="card radius-10">
+      <div class="card-body text-center">
+        <h3 class="text-success">{{ success_count }}</h3>
+        <small class="text-muted">Successful Runs</small>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card radius-10">
+      <div class="card-body text-center">
+        <h3 class="text-danger">{{ fail_count }}</h3>
+        <small class="text-muted">Failed Runs</small>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card radius-10">
+      <div class="card-body text-center">
+        <h3 class="text-primary">{{ total_tokens }}</h3>
+        <small class="text-muted">Total Tokens Used</small>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card radius-10">
+      <div class="card-body text-center">
+        <h3 class="text-warning">${{ "%.4f"|format(total_cost) }}</h3>
+        <small class="text-muted">Total Cost</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Run history -->
+<div class="card radius-10">
+  <div class="card-header bg-transparent">
+    <h5 class="mb-0">Run History</h5>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0" id="runs-table">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Started</th>
+            <th>Completed</th>
+            <th>Tokens</th>
+            <th>Cost</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for run in runs %}
+          <tr>
+            <td>{{ run.id }}</td>
+            <td>
+              {% if run.status == 'success' %}
+              <span class="badge bg-success">Success</span>
+              {% elif run.status == 'failed' %}
+              <span class="badge bg-danger">Failed</span>
+              {% else %}
+              <span class="badge bg-warning">{{ run.status }}</span>
+              {% endif %}
+            </td>
+            <td class="font-13 text-muted">{{ run.started_at.strftime('%Y-%m-%d %H:%M:%S') if run.started_at else '—' }}</td>
+            <td class="font-13 text-muted">{{ run.completed_at.strftime('%H:%M:%S') if run.completed_at else '—' }}</td>
+            <td>{{ run.tokens_used or 0 }}</td>
+            <td>${{ "%.4f"|format(run.cost or 0) }}</td>
+            <td><small class="text-danger">{{ run.error[:60] + '…' if run.error and run.error|length > 60 else run.error or '' }}</small></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-center text-muted py-3">No runs yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

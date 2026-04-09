@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — Etsy Agent Manager{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/assets/plugins/apexcharts-bundle/css/apexcharts.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">Analytics</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item"><a href="/"><span class="material-icons-outlined">home</span></a></li>
+        <li class="breadcrumb-item active">Analytics</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- KPI cards -->
+<div class="row row-cols-2 row-cols-xl-4 g-3 mb-3">
+  <div class="col">
+    <div class="card radius-10">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <p class="mb-0 text-secondary">Revenue (30d)</p>
+            <h4 class="my-1">${{ "%.2f"|format(total_revenue) }}</h4>
+          </div>
+          <div class="ms-auto widget-icon bg-light-success text-success">
+            <span class="material-icons-outlined">attach_money</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card radius-10">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <p class="mb-0 text-secondary">Sales (30d)</p>
+            <h4 class="my-1">{{ total_sales }}</h4>
+          </div>
+          <div class="ms-auto widget-icon bg-light-primary text-primary">
+            <span class="material-icons-outlined">shopping_bag</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card radius-10">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <p class="mb-0 text-secondary">Views (30d)</p>
+            <h4 class="my-1">{{ total_views }}</h4>
+          </div>
+          <div class="ms-auto widget-icon bg-light-info text-info">
+            <span class="material-icons-outlined">visibility</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card radius-10">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <p class="mb-0 text-secondary">Agent Costs (30d)</p>
+            <h4 class="my-1">${{ "%.4f"|format(total_agent_costs) }}</h4>
+          </div>
+          <div class="ms-auto widget-icon bg-light-danger text-danger">
+            <span class="material-icons-outlined">smart_toy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="row mb-3">
+  <div class="col-12 col-xl-8">
+    <div class="card radius-10">
+      <div class="card-header bg-transparent">
+        <h5 class="mb-0">Revenue & Views (30 days)</h5>
+      </div>
+      <div class="card-body">
+        <div id="chart-analytics"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-xl-4">
+    <div class="card radius-10">
+      <div class="card-header bg-transparent">
+        <h5 class="mb-0">Top Niches</h5>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+          {% for item in niche_breakdown %}
+          <li class="list-group-item d-flex align-items-center">
+            <span class="flex-grow-1 font-14">{{ item.niche }}</span>
+            <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item text-center text-muted">No data yet</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Agent breakdown -->
+<div class="card radius-10">
+  <div class="card-header bg-transparent">
+    <h5 class="mb-0">Agent Cost Breakdown</h5>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Agent</th>
+            <th>Total Runs</th>
+            <th>Total Cost</th>
+            <th>Avg Cost / Run</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in agent_breakdown %}
+          <tr>
+            <td class="text-capitalize">{{ row.agent_type }}</td>
+            <td>{{ row.runs }}</td>
+            <td>${{ "%.4f"|format(row.cost) }}</td>
+            <td>${{ "%.6f"|format(row.cost / row.runs if row.runs else 0) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-center text-muted py-3">No agent runs yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/assets/plugins/apexcharts-bundle/js/apexcharts.min.js"></script>
+<script>
+  var analyticsChart = new ApexCharts(document.querySelector("#chart-analytics"), {
+    chart: { type: 'line', height: 300, toolbar: { show: false } },
+    series: [
+      { name: 'Revenue ($)', data: {{ chart_revenue | tojson }} },
+      { name: 'Views', data: {{ chart_views | tojson }} }
+    ],
+    xaxis: { categories: {{ chart_labels | tojson }}, labels: { rotate: -30, style: { fontSize: '11px' } } },
+    yaxis: [
+      { title: { text: 'Revenue ($)' }, labels: { formatter: val => '$' + val.toFixed(2) } },
+      { opposite: true, title: { text: 'Views' } }
+    ],
+    colors: ['#198754', '#0d6efd'],
+    stroke: { curve: 'smooth', width: 2 },
+    dataLabels: { enabled: false },
+    legend: { position: 'top' },
+  });
+  analyticsChart.render();
+</script>
+{% endblock %}

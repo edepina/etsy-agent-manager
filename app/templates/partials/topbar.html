@@ -1,0 +1,49 @@
+<header class="top-header">
+  <nav class="navbar navbar-expand">
+
+    <div class="mobile-toggle-menu"><i class="bx bx-menu"></i></div>
+
+    <div class="search-bar flex-grow-1 d-none d-lg-flex"></div>
+
+    <div class="top-menu-right ms-3">
+      <ul class="navbar-nav align-items-center">
+
+        <!-- Agent status indicators -->
+        <li class="nav-item d-none d-md-flex align-items-center me-2" id="agent-status-bar">
+          {% set agent_icons = {'research': 'search', 'content': 'edit_note', 'design': 'design_services', 'listing': 'storefront', 'analytics': 'bar_chart'} %}
+          {% for agent_type, icon in agent_icons.items() %}
+          <span class="badge bg-secondary me-1 agent-status-badge" data-agent="{{ agent_type }}" title="{{ agent_type|title }} Agent">
+            <span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">{{ icon }}</span>
+          </span>
+          {% endfor %}
+        </li>
+
+        <!-- Review queue bell -->
+        <li class="nav-item dropdown dropdown-large">
+          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="/reviews" title="Review Queue">
+            <span class="material-icons-outlined">notifications</span>
+            <span class="badge-notify" id="queue-count-badge">...</span>
+          </a>
+        </li>
+
+        <!-- User menu -->
+        <li class="nav-item dropdown dropdown-user-setting">
+          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
+            <div class="user-setting d-flex align-items-center gap-1">
+              <div class="flex-grow-1">
+                <p class="user-name mb-0 ms-2">Edson</p>
+              </div>
+            </div>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#"><span class="material-icons-outlined me-2">manage_accounts</span>Profile</a></li>
+            <li><a class="dropdown-item" href="#"><span class="material-icons-outlined me-2">settings</span>Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><span class="material-icons-outlined me-2">logout</span>Logout</a></li>
+          </ul>
+        </li>
+
+      </ul>
+    </div>
+  </nav>
+</header>

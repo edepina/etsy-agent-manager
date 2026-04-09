@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Products — Etsy Agent Manager{% endblock %}
+
+{% block content %}
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">Products</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item"><a href="/"><span class="material-icons-outlined">home</span></a></li>
+        <li class="breadcrumb-item active">Products</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card radius-10 mb-3">
+  <div class="card-body py-2">
+    <form method="get" action="/products" class="d-flex flex-wrap gap-2 align-items-center">
+      <select name="stage" class="form-select form-select-sm" style="width:auto;">
+        <option value="">All Stages</option>
+        {% for s in ['draft','review','approved','listed','live'] %}
+        <option value="{{ s }}" {% if selected_stage == s %}selected{% endif %}>{{ s|title }}</option>
+        {% endfor %}
+      </select>
+      <select name="niche" class="form-select form-select-sm" style="width:auto;">
+        <option value="">All Niches</option>
+        {% for n in niches %}
+        <option value="{{ n }}" {% if selected_niche == n %}selected{% endif %}>{{ n }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+      <a href="/products" class="btn btn-sm btn-outline-secondary">Clear</a>
+    </form>
+  </div>
+</div>
+
+<!-- Stage summary badges -->
+<div class="d-flex flex-wrap gap-2 mb-3">
+  {% for stage, items in stage_groups.items() %}
+  <a href="/products?stage={{ stage }}" class="badge text-decoration-none
+    {% if stage == 'draft' %}bg-secondary
+    {% elif stage == 'review' %}bg-warning text-dark
+    {% elif stage == 'approved' %}bg-info text-dark
+    {% elif stage == 'listed' %}bg-primary
+    {% else %}bg-success{% endif %}
+    fs-6">
+    {{ stage|title }}: {{ items|length }}
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Products table -->
+<div class="card radius-10">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Niche</th>
+            <th>Stage</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr>
+            <td class="text-muted font-13">{{ product.id }}</td>
+            <td>
+              <div class="fw-semibold font-14">{{ product.name[:55] }}{% if product.name|length > 55 %}…{% endif %}</div>
+              {% if product.etsy_listing_id %}
+              <small class="text-muted">Etsy: {{ product.etsy_listing_id }}</small>
+              {% endif %}
+            </td>
+            <td><small class="text-capitalize">{{ product.type.replace('_',' ') }}</small></td>
+            <td><small>{{ product.niche }}</small></td>
+            <td>
+              <span class="badge
+                {% if product.stage == 'draft' %}bg-secondary
+                {% elif product.stage == 'review' %}bg-warning text-dark
+                {% elif product.stage == 'approved' %}bg-info text-dark
+                {% elif product.stage == 'listed' %}bg-primary
+                {% else %}bg-success{% endif %}">
+                {{ product.stage|title }}
+              </span>
+            </td>
+            <td class="text-muted font-13">{{ product.created_at.strftime('%b %d, %Y') if product.created_at else '—' }}</td>
+            <td>
+              {% if product.stage == 'review' %}
+              <div class="d-flex gap-1">
+                <form action="/reviews/{{ product.id }}/approve" method="post">
+                  <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                </form>
+                <form action="/reviews/{{ product.id }}/reject" method="post">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                </form>
+              </div>
+              {% else %}
+              <span class="text-muted font-13">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-center text-muted py-4">No products found</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

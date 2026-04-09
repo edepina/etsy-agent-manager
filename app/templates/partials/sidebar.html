@@ -1,0 +1,69 @@
+<div class="sidebar-wrapper" data-simplebar="true">
+  <div class="sidebar-header">
+    <div>
+      <span class="logo-icon"><span class="material-icons-outlined">mosque</span></span>
+    </div>
+    <div>
+      <h4 class="logo-text">Etsy Agents</h4>
+    </div>
+    <div class="toggle-icon ms-auto"><i class="bx bx-arrow-to-left"></i></div>
+  </div>
+
+  <ul class="metismenu" id="menu">
+    <li class="menu-label">Main</li>
+
+    <li class="{{ 'mm-active' if active_page == 'dashboard' else '' }}">
+      <a href="/">
+        <div class="parent-icon"><span class="material-icons-outlined">home</span></div>
+        <div class="menu-title">Dashboard</div>
+      </a>
+    </li>
+
+    <li class="{{ 'mm-active' if active_page == 'agents' else '' }}">
+      <a href="javascript:;" class="has-arrow">
+        <div class="parent-icon"><span class="material-icons-outlined">smart_toy</span></div>
+        <div class="menu-title">Agents</div>
+      </a>
+      <ul>
+        <li><a href="/agents"><span class="material-icons-outlined">list</span>All Agents</a></li>
+        <li><a href="/agents/research"><span class="material-icons-outlined">search</span>Research</a></li>
+        <li><a href="/agents/content"><span class="material-icons-outlined">edit_note</span>Content</a></li>
+        <li><a href="/agents/design"><span class="material-icons-outlined">design_services</span>Design</a></li>
+        <li><a href="/agents/listing"><span class="material-icons-outlined">storefront</span>Listing</a></li>
+        <li><a href="/agents/analytics"><span class="material-icons-outlined">bar_chart</span>Analytics</a></li>
+      </ul>
+    </li>
+
+    <li class="{{ 'mm-active' if active_page == 'products' else '' }}">
+      <a href="/products">
+        <div class="parent-icon"><span class="material-icons-outlined">inventory_2</span></div>
+        <div class="menu-title">Products</div>
+      </a>
+    </li>
+
+    <li class="{{ 'mm-active' if active_page == 'reviews' else '' }}">
+      <a href="/reviews">
+        <div class="parent-icon"><span class="material-icons-outlined">rate_review</span></div>
+        <div class="menu-title">Review Queue
+          <span class="badge bg-danger rounded-pill ms-auto" id="review-badge">{{ pending_reviews if pending_reviews is defined else '' }}</span>
+        </div>
+      </a>
+    </li>
+
+    <li class="{{ 'mm-active' if active_page == 'analytics' else '' }}">
+      <a href="/analytics">
+        <div class="parent-icon"><span class="material-icons-outlined">analytics</span></div>
+        <div class="menu-title">Analytics</div>
+      </a>
+    </li>
+
+    <li class="menu-label">System</li>
+
+    <li>
+      <a href="#">
+        <div class="parent-icon"><span class="material-icons-outlined">settings</span></div>
+        <div class="menu-title">Settings</div>
+      </a>
+    </li>
+  </ul>
+</div>
