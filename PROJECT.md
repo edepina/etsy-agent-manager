@@ -87,21 +87,21 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 
 ## Phases & Tasks
 
-### Phase 0: Foundation ⬜
+### Phase 0: Foundation ✅
 > Goal: Project structure, GitHub, Docker, database — everything needed before writing features.
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 0.1 | Create GitHub repo (private) | ⬜ | |
-| 0.2 | Create project directory structure on VPS | ⬜ | |
-| 0.3 | Upload Maxton template to static/assets/ | ⬜ | Keep backup on Google Drive |
-| 0.4 | Run Windsurf prompt to generate starter code | ⬜ | Use windsurf-prompt-etsy-agent-manager.md |
-| 0.5 | Create .env with real credentials | ⬜ | DB password, Redis, Anthropic key |
-| 0.6 | docker-compose up — verify all 5 services start | ⬜ | app, worker, beat, db, redis |
-| 0.7 | Run Alembic migration to create tables | ⬜ | |
-| 0.8 | Run seed script — verify mock data in DB | ⬜ | |
-| 0.9 | Visit localhost:8000 — verify dashboard loads with Maxton styling | ⬜ | |
-| 0.10 | Git commit & push "Phase 0 complete" | ⬜ | |
+| 0.1 | Create GitHub repo (private) | ✅ | https://github.com/edepina/etsy-agent-manager |
+| 0.2 | Create project directory structure on VPS | ✅ | /home/deploy/etsy-agent-manager |
+| 0.3 | Upload Maxton template to static/assets/ | ✅ | Vertical menu blue theme copied |
+| 0.4 | Run Windsurf prompt to generate starter code | ✅ | All models, routes, agents, templates generated |
+| 0.5 | Create .env with real credentials | ✅ | DB, Redis, Anthropic keys configured |
+| 0.6 | docker-compose up — verify all 5 services start | ✅ | app, worker, beat, db, redis running |
+| 0.7 | Run Alembic migration to create tables | ✅ | Tables created via alembic upgrade head |
+| 0.8 | Run seed script — verify mock data in DB | ✅ | Mock products, agents, metrics seeded |
+| 0.9 | Visit localhost:8000 — verify dashboard loads with Maxton styling | ✅ | Blue theme working, all templates styled |
+| 0.10 | Git commit & push "Phase 0 complete" | ✅ | Committed and pushed to main |
 
 **Phase 0 Deliverable:** Working dashboard with mock data, all services running, Maxton template integrated.
 
