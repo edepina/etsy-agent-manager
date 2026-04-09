@@ -116,8 +116,9 @@ See `.env.example` for all required variables.
 - Password hash stored in `data/admin_password_hash.txt` (bind-mounted, persists across restarts)
 - Sessions expire after 24 hours (configurable via `SESSION_TIMEOUT_HOURS` in `.env`)
 - Brute-force protection: 5 failed attempts locks the IP for 15 minutes
-- CSRF tokens on all POST forms
-- Rate limiting: 10 req/min on login, 60 req/min on API endpoints
+- CSRF tokens on all POST forms (login, change-password, agents, reviews, products)
+- All POST routes require authentication via `login_required`
+- Rate limiting: 10 req/min on login & agent triggers, 60 req/min on API endpoints
 - Set `DEBUG=false` in `.env` for production to enable HTTPS-only cookies and disable `/docs`
 
 ## Infrastructure

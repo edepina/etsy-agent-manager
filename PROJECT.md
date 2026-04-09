@@ -240,9 +240,9 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 | S.1 | HTTPS via host Caddy + Let's Encrypt | ✅ | etsy.cciesolutions.net with auto cert |
 | S.2 | Redis and PostgreSQL ports locked down | ✅ | No public port exposure, internal Docker network only |
 | S.3 | Secure session cookies (https_only) | ✅ | Enabled when DEBUG=false |
-| S.4 | Rate limiting on login and API endpoints | ✅ | slowapi — 10/min login, 60/min API |
-| S.5 | CSRF protection on all forms | ✅ | Token generated in session, validated on every POST |
-| S.6 | API docs disabled in production | ✅ | /docs and /redoc return 404 when DEBUG=false |
+| S.4 | Rate limiting on login, API, and agent trigger endpoints | ✅ | slowapi — 10/min login & triggers, 60/min API |
+| S.5 | CSRF protection on all forms | ✅ | All POST forms covered: login, change-password, agents, reviews, products |
+| S.6 | DEBUG=false in production | ✅ | HTTPS-only cookies active, /docs and /redoc disabled |
 | S.7 | Security headers | ✅ | Caddy sets HSTS, CSP, X-Frame-Options, etc |
 
 ---
@@ -280,6 +280,7 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 | 2026-04-09 | Phase 0 complete. Dashboard live with Maxton Blue Theme, mock data seeded. |
 | 2026-04-09 | Authentication implemented. Session-based login, brute-force protection, change password page. |
 | 2026-04-09 | Security hardening complete. HTTPS live at https://etsy.cciesolutions.net, CSRF, rate limiting, locked ports. |
+| 2026-04-09 | Full CSRF coverage on all POST routes, rate limiting on agent triggers, DEBUG=false in production. |
 
 ---
 
