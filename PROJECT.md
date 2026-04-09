@@ -11,7 +11,7 @@
 **Goal:** An AI-powered dashboard that orchestrates agents to research, create, and list Islamic digital products on Etsy with minimal manual intervention.  
 **Niche:** Islamic digital products — planners, printables, wall art, journals, checklists, invitations  
 **Stack:** FastAPI + Jinja2 + Maxton (Bootstrap 5) + PostgreSQL + Redis + Celery + Claude API  
-**Repo:** https://github.com/YOUR_USERNAME/etsy-agent-manager  
+**Repo:** https://github.com/edepina/etsy-agent-manager  
 **Hosted:** Hetzner VPS (Docker Compose)  
 **Domain:** TBD
 
