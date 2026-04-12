@@ -1,0 +1,49 @@
+# Etsy Agent Manager — Windsurf Rules
+# Project: FastAPI + Jinja2 + Maxton Bootstrap 5 + PostgreSQL + Celery
+
+## Project Context
+This is the Etsy Agent Manager — a dashboard that orchestrates AI agents to research, create, and list Islamic digital products on Etsy. The stack is FastAPI (async) with Jinja2 templates using the Maxton Bootstrap 5 admin template, PostgreSQL via SQLAlchemy async, Celery with Redis for background tasks, and the Claude API for AI operations.
+
+## Engineering Standards (Agent Skills)
+This project uses Addy Osmani's Agent Skills framework. Before implementing any feature:
+
+1. **Read the relevant SKILL.md files** from `.agent-skills/skills/` before writing code
+2. **Incremental implementation**: Build in thin vertical slices. Implement one piece, test it, verify it, then expand. Never do big-bang changes.
+3. **Test-driven development**: Write tests before code. Every bug fix starts with a failing test. Never ship without verification.
+4. **Anti-rationalization**: Do not skip tests, specs, or security checks. "It's simple enough" and "I'll add tests later" are not valid reasons to skip steps.
+
+## Code Standards
+- Python 3.11+, async/await throughout
+- Type hints on all function signatures
+- Docstrings on all public functions and classes
+- SQLAlchemy async sessions — never use sync operations
+- All API keys and secrets from environment variables, never hardcoded
+- Error handling with proper logging, not silent failures
+- FastAPI dependencies for auth, DB sessions, etc.
+
+## Template Standards
+- All HTML templates extend base.html
+- Use Maxton's component classes — do not create custom CSS unless absolutely necessary
+- Jinja2 template inheritance with blocks: title, content, scripts
+- Static assets served from /static/assets/ (Maxton's directory structure)
+- No React, no Vue, no Tailwind — this is server-rendered HTML with Bootstrap 5
+
+## Database Standards
+- Alembic for all migrations — never modify tables manually
+- All models inherit from Base with created_at and updated_at columns
+- Use async sessions via dependency injection
+- Foreign key relationships with proper cascade rules
+
+## Agent Architecture
+- All agents inherit from BaseAgent
+- Every agent run is logged to the database (status, duration, tokens, cost, error)
+- Agents communicate through the database, not direct calls
+- The MasterController orchestrates the pipeline: Research → Content → Design → Review → Listing → Monitor
+- The Review step is always human-in-the-loop — never auto-approve
+
+## Security
+- All routes behind login_required dependency
+- CSRF tokens on all forms
+- Rate limiting on all endpoints
+- No debug mode in production
+- Sessions stored in Redis with secure cookies

@@ -45,3 +45,4 @@ alembic/versions/*.py
 # Logs
 *.log
 celery*.pid
+.agent-skills/
