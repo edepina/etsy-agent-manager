@@ -31,6 +31,7 @@ services:
       - etsy-net
     env_file: .env
     volumes:
+      - ./app:/app/app
       - ./products:/app/products
     depends_on:
       db:
@@ -45,6 +46,8 @@ services:
     networks:
       - etsy-net
     env_file: .env
+    volumes:
+      - ./app:/app/app
     depends_on:
       db:
         condition: service_healthy

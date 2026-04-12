@@ -3,7 +3,7 @@ import time
 import logging
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
+from typing import Optional, Callable, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,6 +34,14 @@ class BaseAgent:
         self._status = AgentStatus.IDLE
         self._last_run: Optional[datetime] = None
         self._last_error: Optional[str] = None
+        self._progress_callback: Optional[Callable[[dict[str, Any]], None]] = None
+
+    def set_progress_callback(self, callback: Callable[[dict[str, Any]], None]) -> None:
+        self._progress_callback = callback
+
+    def report_progress(self, payload: dict[str, Any]) -> None:
+        if self._progress_callback:
+            self._progress_callback(payload)
 
     async def run(self, input_data: dict, db: AsyncSession) -> dict:
         raise NotImplementedError("Subclasses must implement run()")

@@ -14,13 +14,17 @@
       </ol>
     </nav>
   </div>
-  <div class="ms-auto d-flex gap-2">
-    <button class="btn btn-outline-secondary btn-sm" onclick="triggerNiche({{ niche.id }})">
+  <div class="ms-auto d-flex gap-2 align-items-center">
+    <button class="btn btn-outline-secondary btn-sm" id="rerun-btn" onclick="triggerNiche({{ niche.id }})">
       <span class="material-icons-outlined me-1" style="vertical-align:middle;font-size:15px;">refresh</span>Re-run
     </button>
     <span class="badge {{ 'bg-success' if niche.enabled else 'bg-secondary' }} align-self-center">
       {{ 'Enabled' if niche.enabled else 'Disabled' }}
     </span>
+    <small id="rerun-status" class="text-secondary"></small>
+    <div id="rerun-progress-wrap" class="progress d-none" style="height: 6px; min-width: 140px;">
+      <div id="rerun-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+    </div>
   </div>
 </div>
 
@@ -261,15 +265,87 @@ chart.render();
 {% endif %}
 
 <script>
+function setRerunStatus(message, isError = false) {
+  const el = document.getElementById('rerun-status');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.toggle('text-danger', isError);
+  el.classList.toggle('text-secondary', !isError);
+}
+
+function setRerunProgress(percent) {
+  const wrap = document.getElementById('rerun-progress-wrap');
+  const bar = document.getElementById('rerun-progress-bar');
+  if (!wrap || !bar) return;
+  wrap.classList.remove('d-none');
+  const value = Math.max(0, Math.min(100, Number(percent || 0)));
+  bar.style.width = value + '%';
+  bar.setAttribute('aria-valuenow', String(value));
+}
+
+function pollDetailTask(taskId) {
+  const btn = document.getElementById('rerun-btn');
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts += 1;
+    fetch('/api/research/tasks/' + taskId)
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          clearInterval(timer);
+          setRerunProgress(100);
+          setRerunStatus('Done. Refreshing...');
+          window.setTimeout(() => window.location.reload(), 800);
+        } else if (data.status === 'FAILURE') {
+          clearInterval(timer);
+          setRerunStatus('Research failed.', true);
+          if (btn) btn.disabled = false;
+        } else {
+          setRerunProgress(data.progress_percent || 0);
+          setRerunStatus((data.meta && data.meta.message) ? data.meta.message : ('Running... (' + data.status + ')'));
+        }
+      })
+      .catch(() => {
+        clearInterval(timer);
+        setRerunStatus('Unable to read task status.', true);
+        if (btn) btn.disabled = false;
+      });
+
+    if (attempts >= 120) {
+      clearInterval(timer);
+      setRerunStatus('Still running in background.');
+      if (btn) btn.disabled = false;
+    }
+  }, 3000);
+}
+
 function triggerNiche(nicheId) {
+  const btn = document.getElementById('rerun-btn');
+  if (btn) btn.disabled = true;
+  setRerunStatus('Queueing...');
+  setRerunProgress(0);
+
   fetch('/api/research/trigger', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify([nicheId])
   })
-  .then(r => r.json())
-  .then(data => { if (data.task_id) alert('Research queued — Task: ' + data.task_id); })
-  .catch(() => alert('Failed to queue research'));
+  .then(r => {
+    if (!r.ok) throw new Error('Request failed');
+    return r.json();
+  })
+  .then(data => {
+    if (data.task_id) {
+      setRerunStatus('Queued. Task ID: ' + data.task_id);
+      pollDetailTask(data.task_id);
+      return;
+    }
+    throw new Error('Missing task id');
+  })
+  .catch(() => {
+    setRerunStatus('Failed to queue research.', true);
+    if (btn) btn.disabled = false;
+  });
 }
 
 function saveKeywords(nicheId) {

@@ -16,10 +16,14 @@
   <div class="ms-auto">
     <form action="/api/research/trigger" method="post" id="trigger-research-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <button type="button" class="btn btn-primary" onclick="triggerResearch()">
+      <button type="button" class="btn btn-primary" id="run-research-btn" onclick="triggerResearch()">
         <span class="material-icons-outlined me-1" style="vertical-align:middle;">science</span>Run Research Agent
       </button>
     </form>
+    <small id="research-run-status" class="text-secondary d-block text-end mt-1"></small>
+    <div id="research-progress-wrap" class="progress mt-2 d-none" style="height: 6px; min-width: 220px;">
+      <div id="research-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+    </div>
   </div>
 </div>
 
@@ -251,19 +255,87 @@
 
 {% block scripts %}
 <script>
+function setRunStatus(message, isError = false) {
+  const el = document.getElementById('research-run-status');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.toggle('text-danger', isError);
+  el.classList.toggle('text-secondary', !isError);
+}
+
+function setRunProgress(percent) {
+  const wrap = document.getElementById('research-progress-wrap');
+  const bar = document.getElementById('research-progress-bar');
+  if (!wrap || !bar) return;
+  wrap.classList.remove('d-none');
+  const value = Math.max(0, Math.min(100, Number(percent || 0)));
+  bar.style.width = value + '%';
+  bar.setAttribute('aria-valuenow', String(value));
+}
+
+function pollResearchTask(taskId) {
+  const btn = document.getElementById('run-research-btn');
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts += 1;
+    fetch('/api/research/tasks/' + taskId)
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          clearInterval(timer);
+          setRunProgress(100);
+          setRunStatus('Research completed. Refreshing results...');
+          window.setTimeout(() => window.location.reload(), 800);
+        } else if (data.status === 'FAILURE') {
+          clearInterval(timer);
+          setRunStatus('Research failed. Check worker logs for details.', true);
+          if (btn) btn.disabled = false;
+        } else {
+          setRunProgress(data.progress_percent || 0);
+          setRunStatus((data.meta && data.meta.message) ? data.meta.message : ('Research in progress... (' + data.status + ')'));
+        }
+      })
+      .catch(() => {
+        clearInterval(timer);
+        setRunStatus('Unable to read research task status.', true);
+        if (btn) btn.disabled = false;
+      });
+
+    if (attempts >= 120) {
+      clearInterval(timer);
+      setRunStatus('Research is still running in background. Refresh in a moment.');
+      if (btn) btn.disabled = false;
+    }
+  }, 3000);
+}
+
 function triggerResearch() {
+  const btn = document.getElementById('run-research-btn');
+  if (btn) btn.disabled = true;
+  setRunStatus('Queueing research run...');
+  setRunProgress(0);
+
   fetch('/api/research/trigger', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(null)
   })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error('Request failed');
+    return r.json();
+  })
   .then(data => {
     if (data.task_id) {
-      alert('Research agent queued! Task ID: ' + data.task_id);
+      setRunStatus('Research queued. Task ID: ' + data.task_id);
+      pollResearchTask(data.task_id);
+      return;
     }
+    throw new Error('Missing task id');
   })
-  .catch(() => alert('Failed to trigger research agent'));
+  .catch(() => {
+    setRunStatus('Failed to trigger research agent.', true);
+    if (btn) btn.disabled = false;
+  });
 }
 
 function addNiche() {

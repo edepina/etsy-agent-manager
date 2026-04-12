@@ -34,7 +34,7 @@ celery_app.conf.beat_schedule = {
 }
 
 
-def _run_agent_sync(agent_class_name: str, input_data: dict) -> dict:
+def _run_agent_sync(agent_class_name: str, input_data: dict, progress_callback=None) -> dict:
     import asyncio
     from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
     from app.config import settings as _settings
@@ -43,6 +43,9 @@ def _run_agent_sync(agent_class_name: str, input_data: dict) -> dict:
     agents_module = importlib.import_module("app.agents")
     AgentClass = getattr(agents_module, agent_class_name)
     agent = AgentClass()
+
+    if progress_callback and hasattr(agent, "set_progress_callback"):
+        agent.set_progress_callback(progress_callback)
 
     engine = create_async_engine(_settings.DATABASE_URL, echo=False)
     SessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -59,7 +62,10 @@ def _run_agent_sync(agent_class_name: str, input_data: dict) -> dict:
 @celery_app.task(bind=True, max_retries=3, name="app.tasks.celery_app.run_research")
 def run_research(self, input_data: dict = None):
     try:
-        return _run_agent_sync("ResearchAgent", input_data or {})
+        def _progress(meta: dict):
+            self.update_state(state="PROGRESS", meta=meta)
+
+        return _run_agent_sync("ResearchAgent", input_data or {}, progress_callback=_progress)
     except Exception as exc:
         raise self.retry(exc=exc, countdown=60)
 

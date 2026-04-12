@@ -282,6 +282,9 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 | 2026-04-09 | Security hardening complete. HTTPS live at https://etsy.cciesolutions.net, CSRF, rate limiting, locked ports. |
 | 2026-04-09 | Full CSRF coverage on all POST routes, rate limiting on agent triggers, DEBUG=false in production. |
 | 2026-04-12 | Phase 1 complete. Research Agent live — Etsy API integration, Claude analysis, 8 Islamic niches, /research dashboard with niche management and detail pages. |
+| 2026-04-12 | Bug fix: API routes had double `/api/` prefix causing all research endpoint calls to 404. Fixed route decorators in `app/routes/api.py`. |
+| 2026-04-12 | Bug fix: `worker` and `beat` containers lacked `./app` volume mount — running stale mock ResearchAgent from image. Added mounts to `docker-compose.yml` and force-recreated containers. |
+| 2026-04-12 | Feature: Real-time progress bars on Run Research Agent and Re-run buttons. Celery task emits per-niche `update_state(PROGRESS)`, API exposes `progress_percent` + `message`, UI polls and renders animated Bootstrap progress bar. |
 
 ---
 
@@ -292,4 +295,6 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 - **2026-04-09:** Human-in-the-loop review step is mandatory — Etsy penalises low-quality/AI-generated content, so every product gets manual approval before listing.
 - **2026-04-12:** EtsyService uses x-api-key header auth (no OAuth required) for public search endpoints. OAuth only needed for write operations (listing creation). Graceful 403 fallback stores results as `pending_analysis` so they can be retried when the key is approved.
 - **2026-04-12:** Alembic `script.py.mako` was missing from repo — created. Also added `alembic/` and `tests/` as volume mounts in docker-compose so they are accessible inside the container without rebuilding the image.
+- **2026-04-12:** Worker/beat volume mounts were missing `./app` — always add `./app:/app/app` to every service that imports application code, not just the web server. Lesson: image code is frozen at build time; source mounts are required for live code.
+- **2026-04-12:** Etsy API key is Pending Personal Approval. All research runs store `analysis_status=pending_analysis` with zero data until approved. Re-run after approval to populate real results.
 - **2026-04-12:** Integrated Addy Osmani's Agent Skills framework (.agent-skills/) for structured engineering workflows. Windsurf rules configured in .windsurfrules. Skills loaded selectively per phase to keep context focused.

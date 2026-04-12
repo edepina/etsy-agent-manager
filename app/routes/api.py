@@ -17,7 +17,7 @@ router = APIRouter(prefix="/api")
 limiter = Limiter(key_func=get_remote_address)
 
 
-@router.get("/api/agents/status")
+@router.get("/agents/status")
 @limiter.limit("60/minute")
 async def get_agent_status(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     agent_types = ["research", "content", "design", "listing", "analytics"]
@@ -45,7 +45,7 @@ async def get_agent_status(request: Request, db: AsyncSession = Depends(get_db),
     return {"agents": statuses, "pending_reviews": pending_reviews}
 
 
-@router.get("/api/dashboard/stats")
+@router.get("/dashboard/stats")
 @limiter.limit("60/minute")
 async def get_dashboard_stats(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     total_products = await db.scalar(select(func.count(Product.id))) or 0
@@ -74,7 +74,7 @@ async def get_dashboard_stats(request: Request, db: AsyncSession = Depends(get_d
     }
 
 
-@router.get("/api/metrics/chart")
+@router.get("/metrics/chart")
 @limiter.limit("60/minute")
 async def get_metrics_chart(request: Request, days: int = 30, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     result = await db.execute(
@@ -90,7 +90,7 @@ async def get_metrics_chart(request: Request, days: int = 30, db: AsyncSession =
     }
 
 
-@router.get("/api/queue/count")
+@router.get("/queue/count")
 @limiter.limit("60/minute")
 async def get_queue_count(request: Request, db: AsyncSession = Depends(get_db), user: str = Depends(api_login_required)):
     count = await db.scalar(
@@ -103,7 +103,7 @@ async def get_queue_count(request: Request, db: AsyncSession = Depends(get_db), 
 # Research API endpoints                                               #
 # ------------------------------------------------------------------ #
 
-@router.post("/api/research/trigger")
+@router.post("/research/trigger")
 @limiter.limit("10/minute")
 async def trigger_research(
     request: Request,
@@ -118,7 +118,7 @@ async def trigger_research(
     return {"task_id": task.id, "status": "queued"}
 
 
-@router.get("/api/research/results")
+@router.get("/research/results")
 @limiter.limit("60/minute")
 async def get_research_results(
     request: Request,
@@ -155,7 +155,7 @@ async def get_research_results(
     ]
 
 
-@router.get("/api/research/niches")
+@router.get("/research/niches")
 @limiter.limit("60/minute")
 async def get_niches(
     request: Request,
@@ -176,7 +176,7 @@ async def get_niches(
     ]
 
 
-@router.post("/api/research/niches")
+@router.post("/research/niches")
 @limiter.limit("20/minute")
 async def create_niche(
     request: Request,
@@ -197,7 +197,7 @@ async def create_niche(
     return {"id": niche.id, "name": niche.name, "keywords": niche.keywords, "enabled": niche.enabled}
 
 
-@router.put("/api/research/niches/{niche_id}")
+@router.put("/research/niches/{niche_id}")
 @limiter.limit("20/minute")
 async def update_niche(
     request: Request,
@@ -219,3 +219,33 @@ async def update_niche(
     niche.updated_at = datetime.now(timezone.utc)
     await db.flush()
     return {"id": niche.id, "name": niche.name, "keywords": niche.keywords, "enabled": niche.enabled}
+
+
+@router.get("/research/tasks/{task_id}")
+@limiter.limit("60/minute")
+async def get_research_task_status(
+    request: Request,
+    task_id: str,
+    user: str = Depends(api_login_required),
+):
+    """Return Celery task status and payload (when complete)."""
+    from app.tasks.celery_app import celery_app
+
+    result = celery_app.AsyncResult(task_id)
+    payload = {
+        "task_id": task_id,
+        "status": result.status,
+    }
+
+    info = result.info if isinstance(result.info, dict) else None
+    if info:
+        payload["meta"] = info
+        payload["progress_percent"] = info.get("progress_percent")
+
+    if result.ready():
+        if result.successful():
+            payload["result"] = result.result
+        else:
+            payload["error"] = str(result.result)
+
+    return payload

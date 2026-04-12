@@ -141,6 +141,15 @@ class ResearchAgent(BaseAgent):
 
         if not niches:
             logger.warning("ResearchAgent: no enabled niches found")
+            self.report_progress(
+                {
+                    "phase": "complete",
+                    "current": 0,
+                    "total": 0,
+                    "progress_percent": 100,
+                    "message": "No enabled niches found",
+                }
+            )
             return {"niches_processed": 0, "tokens_used": 0, "cost": 0.0}
 
         etsy = EtsyService()
@@ -151,7 +160,21 @@ class ResearchAgent(BaseAgent):
         results_summary = []
         etsy_available = True
 
-        for niche in niches:
+        total_niches = len(niches)
+
+        for index, niche in enumerate(niches, start=1):
+            progress_percent = int(((index - 1) / total_niches) * 100)
+            self.report_progress(
+                {
+                    "phase": "running",
+                    "current": index - 1,
+                    "total": total_niches,
+                    "progress_percent": progress_percent,
+                    "niche": niche.name,
+                    "message": f"Processing niche {index}/{total_niches}: {niche.name}",
+                }
+            )
+
             logger.info("ResearchAgent: processing niche '%s'", niche.name)
             listings: list[dict] = []
 
@@ -279,7 +302,28 @@ class ResearchAgent(BaseAgent):
                 niche.name, opportunity_score, analysis_status,
             )
 
+            self.report_progress(
+                {
+                    "phase": "running",
+                    "current": index,
+                    "total": total_niches,
+                    "progress_percent": int((index / total_niches) * 100),
+                    "niche": niche.name,
+                    "message": f"Completed niche {index}/{total_niches}: {niche.name}",
+                }
+            )
+
         await etsy.aclose()
+
+        self.report_progress(
+            {
+                "phase": "complete",
+                "current": total_niches,
+                "total": total_niches,
+                "progress_percent": 100,
+                "message": "Research run complete",
+            }
+        )
 
         return {
             "niches_processed": len(niches),
