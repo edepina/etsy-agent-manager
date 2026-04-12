@@ -285,6 +285,7 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 | 2026-04-12 | Bug fix: API routes had double `/api/` prefix causing all research endpoint calls to 404. Fixed route decorators in `app/routes/api.py`. |
 | 2026-04-12 | Bug fix: `worker` and `beat` containers lacked `./app` volume mount — running stale mock ResearchAgent from image. Added mounts to `docker-compose.yml` and force-recreated containers. |
 | 2026-04-12 | Feature: Real-time progress bars on Run Research Agent and Re-run buttons. Celery task emits per-niche `update_state(PROGRESS)`, API exposes `progress_percent` + `message`, UI polls and renders animated Bootstrap progress bar. |
+| 2026-04-12 | Extended niche library to 34 Islamic digital product niches (from 8). 16 enabled (high-priority + evergreen), 18 disabled (seasonal + lower-priority). Seed script is now fully idempotent. |
 
 ---
 
@@ -297,4 +298,5 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 - **2026-04-12:** Alembic `script.py.mako` was missing from repo — created. Also added `alembic/` and `tests/` as volume mounts in docker-compose so they are accessible inside the container without rebuilding the image.
 - **2026-04-12:** Worker/beat volume mounts were missing `./app` — always add `./app:/app/app` to every service that imports application code, not just the web server. Lesson: image code is frozen at build time; source mounts are required for live code.
 - **2026-04-12:** Etsy API key is Pending Personal Approval. All research runs store `analysis_status=pending_analysis` with zero data until approved. Re-run after approval to populate real results.
+- **2026-04-12:** Expanded from 8 to 34 niches. Seasonal niches (Ramadan, Eid) disabled post-season. Strategy: enable ~6-8 weeks before each season. Dhul Hijjah niches enabled now (season approaching). Lower-priority niches disabled until research data validates demand. Seed script is idempotent — commits niches first, then guards mock data with existence check.
 - **2026-04-12:** Integrated Addy Osmani's Agent Skills framework (.agent-skills/) for structured engineering workflows. Windsurf rules configured in .windsurfrules. Skills loaded selectively per phase to keep context focused.

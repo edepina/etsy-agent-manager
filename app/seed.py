@@ -48,58 +48,361 @@ SAMPLE_TITLES = [
 ]
 
 
-INITIAL_NICHES = [
+ALL_NICHES = [
+    # --- Existing niches: merged keywords + updated enabled flags ---
     {
         "name": "Ramadan Planners",
-        "keywords": ["ramadan planner", "ramadan printable", "ramadan journal", "ramadan tracker", "ramadan calendar"],
+        "keywords": [
+            "ramadan planner", "ramadan printable", "ramadan journal", "ramadan tracker",
+            "ramadan calendar", "ramadan planner beginners", "ramadan planner busy moms",
+            "ramadan planner students", "ramadan planner new revert", "ramadan business planner",
+            "ramadan content calendar", "ramadan charity planner",
+        ],
+        "enabled": False,  # Ramadan just passed — re-enable ~8 weeks before next Ramadan
     },
     {
         "name": "Islamic Wall Art",
-        "keywords": ["islamic wall art", "islamic print", "bismillah art", "allah wall art", "arabic calligraphy print", "islamic nursery art"],
+        "keywords": [
+            "islamic wall art", "islamic print", "bismillah art", "allah wall art",
+            "arabic calligraphy print", "islamic nursery art", "minimalist arabic calligraphy",
+            "islamic calligraphy set", "three piece islamic wall art", "modern islamic print",
+        ],
+        "enabled": True,
     },
     {
         "name": "Qur'an Journals",
-        "keywords": ["quran journal", "quran study guide", "quran reflection journal", "quran tracker", "islamic journal"],
+        "keywords": [
+            "quran journal", "quran study guide", "quran reflection journal",
+            "quran tracker", "islamic journal",
+        ],
+        "enabled": True,
     },
     {
         "name": "Du'a Collections",
-        "keywords": ["dua printable", "dua cards", "dua book", "islamic prayer cards", "daily dua", "morning dua"],
+        "keywords": [
+            "dua printable", "dua cards", "dua book", "islamic prayer cards", "daily dua",
+            "morning dua", "daily dua journal", "answered dua log", "shukr gratitude journal",
+            "islamic gratitude prompts",
+        ],
+        "enabled": True,
     },
     {
         "name": "Islamic Wedding",
-        "keywords": ["islamic wedding invitation", "nikah invitation", "walimah invitation", "muslim wedding", "nikkah printable"],
+        "keywords": [
+            "islamic wedding invitation", "nikah invitation", "walimah invitation",
+            "muslim wedding", "nikkah printable", "nikah planning kit", "mahr planner",
+            "walimah seating chart", "muslim wedding vendor tracker", "islamic wedding guest list",
+        ],
+        "enabled": True,
     },
     {
         "name": "Hajj & Umrah",
-        "keywords": ["hajj planner", "umrah checklist", "hajj printable", "hajj journal", "umrah planner", "hajj packing list"],
+        "keywords": [
+            "hajj planner", "umrah checklist", "hajj printable", "hajj journal",
+            "umrah planner", "hajj packing list", "umrah trip planner", "hajj ritual checklist",
+            "hajj budget sheet", "hajj dua list", "umrah packing list printable",
+            "hajj step by step guide",
+        ],
+        "enabled": True,  # Hajj season approaching
     },
     {
         "name": "Islamic Education",
-        "keywords": ["islamic homeschool", "islamic worksheet", "arabic alphabet printable", "islamic colouring", "islamic activity", "ramadan activity kids"],
+        "keywords": [
+            "islamic homeschool", "islamic worksheet", "arabic alphabet printable",
+            "islamic colouring", "islamic activity", "ramadan activity kids",
+            "islamic lesson plan", "weekend madrasah plan", "islamic homeschool printable",
+            "islamic studies worksheet",
+        ],
+        "enabled": True,
     },
     {
         "name": "Eid Printables",
-        "keywords": ["eid decoration", "eid printable", "eid banner", "eid card printable", "eid party", "eid mubarak printable"],
+        "keywords": [
+            "eid decoration", "eid printable", "eid banner", "eid card printable",
+            "eid party", "eid mubarak printable", "eid al adha printable",
+            "eid party games", "eid thank you card", "eid money envelope printable",
+        ],
+        "enabled": False,  # Eid just passed — re-enable before next Eid
+    },
+
+    # --- New niches: ENABLED (high priority) ---
+    {
+        "name": "Tajweed Practice Sheets",
+        "keywords": [
+            "tajweed worksheet", "tajweed rules printable", "tajweed practice sheet",
+            "quran recitation tracker", "tajweed colour coded", "tajweed mistakes log",
+        ],
+        "enabled": True,
+    },
+    {
+        "name": "Daily Muslim Productivity",
+        "keywords": [
+            "muslim productivity planner", "daily muslim planner", "salah habit tracker",
+            "adhkar tracker printable", "islamic daily routine", "muslim goal planner",
+            "islamic habit tracker",
+        ],
+        "enabled": True,
+    },
+    {
+        "name": "New Revert Roadmap",
+        "keywords": [
+            "new muslim guide", "revert islam planner", "new shahada planner",
+            "convert islam checklist", "new muslim learning plan", "islam basics printable",
+            "new revert salah guide",
+        ],
+        "enabled": True,
+    },
+    {
+        "name": "Salah & Wudu Charts for Kids",
+        "keywords": [
+            "salah chart kids", "wudu steps printable", "how to pray poster kids",
+            "salah reward chart", "wudu chart children", "islamic prayer steps kids",
+        ],
+        "enabled": True,
+    },
+    {
+        "name": "Arabic Alphabet Workbooks",
+        "keywords": [
+            "arabic alphabet tracing", "arabic letter worksheet", "arabic flashcards printable",
+            "learn arabic alphabet kids", "arabic writing practice", "arabic alphabet poster",
+        ],
+        "enabled": True,
+    },
+    {
+        "name": "Aqiqah & Baby Naming",
+        "keywords": [
+            "aqiqah planner", "aqiqah invitation printable", "islamic baby naming",
+            "aqiqah checklist", "islamic nursery print", "bismillah baby shower",
+            "muslim baby shower printable",
+        ],
+        "enabled": True,
+    },
+    {
+        "name": "Minimalist Arabic Calligraphy Sets",
+        "keywords": [
+            "arabic calligraphy bundle", "bismillah calligraphy print",
+            "subhanallah alhamdulillah print set", "islamic typography art",
+            "modern arabic art print", "islamic calligraphy trio",
+        ],
+        "enabled": True,
+    },
+    {
+        "name": "Kids Islamic Affirmation Prints",
+        "keywords": [
+            "islamic kids poster", "muslim affirmation print", "islamic bedroom art kids",
+            "i am kind islamic print", "islamic values poster children",
+            "muslim kids room decor",
+        ],
+        "enabled": True,
+    },
+    {
+        "name": "Dhul Hijjah & Arafah Planners",
+        "keywords": [
+            "dhul hijjah planner", "day of arafah planner", "dhul hijjah ibadah tracker",
+            "10 days dhul hijjah", "dhul hijjah fasting tracker", "takbeer printable",
+            "dhul hijjah dua list",
+        ],
+        "enabled": True,  # Dhul Hijjah approaching
+    },
+    {
+        "name": "Halal Budgeting & Finance",
+        "keywords": [
+            "halal budget planner", "islamic finance printable", "zakat calculator printable",
+            "riba free budget", "sadaqah tracker", "muslim savings planner",
+            "halal debt free planner",
+        ],
+        "enabled": True,
+    },
+
+    # --- New niches: DISABLED (medium priority, enable after research validates demand) ---
+    {
+        "name": "Islamic Parenting Journals",
+        "keywords": [
+            "islamic parenting planner", "tarbiyah journal", "muslim parenting reflection",
+            "raising muslim children planner", "islamic character building worksheet",
+            "muslim mom planner",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Istikhara & Decision Journals",
+        "keywords": [
+            "istikhara journal", "islamic decision journal", "istikhara dua printable",
+            "muslim life choices planner", "tawakkul journal", "islamic reflection prompts",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Qur'an Memorisation Trackers for Kids",
+        "keywords": [
+            "hifz tracker kids", "juz amma chart", "quran memorization chart children",
+            "surah tracker printable kids", "hifz reward chart", "quran progress kids",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Adult Hifz & Revision Planners",
+        "keywords": [
+            "hifz planner adult", "quran revision calendar", "spaced repetition quran",
+            "surah revision log", "hifz journal", "quran memorization planner adult",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Qur'anic Vocabulary Flashcards",
+        "keywords": [
+            "quranic arabic flashcards", "quran vocabulary cards", "arabic quran words",
+            "islamic vocabulary printable", "quran word meanings cards",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Tawakkul & Sabr Workbooks",
+        "keywords": [
+            "islamic mindset journal", "sabr journal", "tawakkul workbook",
+            "islamic mental health printable", "muslim wellbeing journal",
+            "islamic self care planner",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Canva Social Media Packs for Muslim Brands",
+        "keywords": [
+            "islamic social media templates", "muslim brand canva templates",
+            "jummah reminder template", "islamic instagram post template",
+            "ramadan social media kit", "eid announcement template",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Islamic Event Invitation Templates",
+        "keywords": [
+            "islamic invitation template", "quran khatam invitation",
+            "islamic party invitation", "ameen ceremony invitation",
+            "islamic housewarming invitation", "walimah invitation template",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Halal Small Business Finance",
+        "keywords": [
+            "halal business planner", "islamic profit sharing calculator",
+            "halal product costing sheet", "muslim entrepreneur planner",
+            "islamic business finance template",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Masjid Themed Nursery Art",
+        "keywords": [
+            "masjid nursery print", "cute mosque art kids", "islamic nursery decor",
+            "moon star nursery print", "muslim baby room art", "masjid illustration print",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Islamic Motivational Quotes",
+        "keywords": [
+            "islamic quote printable", "muslim motivational poster",
+            "islamic office wall art", "quran quote print", "hadith quote poster",
+            "islamic study room decor",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Dervish & Tasawwuf Art",
+        "keywords": [
+            "whirling dervish art", "sufi art print", "dervish silhouette",
+            "tasawwuf wall art", "dhikr art print", "islamic spiritual art",
+        ],
+        "enabled": False,
+    },
+    {
+        "name": "Islamic Funeral & Janazah Checklists",
+        "keywords": [
+            "janazah checklist", "islamic funeral planner", "islamic burial checklist",
+            "janazah dua printable", "muslim funeral preparation", "ghusl checklist",
+        ],
+        "enabled": False,
+    },
+
+    # --- New niches: DISABLED (seasonal — enable when season approaches) ---
+    {
+        "name": "Kids Ramadan Activity Books",
+        "keywords": [
+            "ramadan activity book kids", "ramadan coloring pages", "ramadan maze kids",
+            "ramadan good deed chart", "ramadan daily hadith kids",
+            "ramadan printable activities children",
+        ],
+        "enabled": False,  # Enable ~6 weeks before Ramadan
+    },
+    {
+        "name": "Last 10 Nights Qadr Planner",
+        "keywords": [
+            "laylatul qadr planner", "last 10 nights ramadan", "last ten nights ibadah",
+            "qadr night dua list", "ramadan last 10 nights schedule",
+            "laylatul qadr worship planner",
+        ],
+        "enabled": False,  # Enable ~4 weeks before Ramadan
+    },
+    {
+        "name": "Ramadan Business Owners Planner",
+        "keywords": [
+            "ramadan business planner", "ramadan marketing calendar",
+            "iftar event planner", "ramadan campaign planner",
+            "islamic business ramadan", "ramadan charity campaign planner",
+        ],
+        "enabled": False,  # Enable ~8 weeks before Ramadan
     },
 ]
 
 
 async def seed(db: AsyncSession) -> None:
-    print("Seeding research niches...")
-    for niche_data in INITIAL_NICHES:
-        from sqlalchemy import select
+    from sqlalchemy import select, func
+    print("Seeding research niches (idempotent upsert)...")
+    added = updated = skipped = 0
+    for niche_data in ALL_NICHES:
         existing = await db.scalar(
-            select(ResearchNiche).where(ResearchNiche.name == niche_data["name"])
+            select(ResearchNiche).where(
+                func.lower(ResearchNiche.name) == niche_data["name"].lower()
+            )
         )
-        if not existing:
+        if existing:
+            current_kws = set(existing.keywords or [])
+            new_kws = set(niche_data["keywords"])
+            merged = sorted(current_kws | new_kws)
+            changed = False
+            if merged != sorted(current_kws):
+                existing.keywords = merged
+                changed = True
+            if existing.enabled != niche_data["enabled"]:
+                existing.enabled = niche_data["enabled"]
+                changed = True
+            if changed:
+                existing.updated_at = datetime.now(timezone.utc)
+                updated += 1
+                print(f"  UPDATED: {existing.name}")
+            else:
+                skipped += 1
+        else:
             db.add(ResearchNiche(
                 name=niche_data["name"],
                 keywords=niche_data["keywords"],
-                enabled=True,
+                enabled=niche_data["enabled"],
                 created_at=datetime.now(timezone.utc),
                 updated_at=datetime.now(timezone.utc),
             ))
+            added += 1
+            print(f"  ADDED:   {niche_data['name']}")
     await db.flush()
+    await db.commit()
+    print(f"Niches: {added} added, {updated} updated, {skipped} unchanged.")
+
+    from sqlalchemy import select as _select
+    existing_products = await db.scalar(_select(func.count()).select_from(Product))
+    if existing_products > 0:
+        print("Mock data already seeded — skipping products, agent runs, metrics, workflows.")
+        return
 
     print("Seeding products...")
     products = []
@@ -175,7 +478,7 @@ async def seed(db: AsyncSession) -> None:
     db.add(analytics_workflow)
 
     await db.commit()
-    print("Seed complete!")
+    print("Seed complete.")
 
 
 async def main():
