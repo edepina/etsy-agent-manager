@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}{{ niche.name }} Research — Etsy Agent Manager{% endblock %}
+
+{% block content %}
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">{{ niche.name }}</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item"><a href="/"><span class="material-icons-outlined">home</span></a></li>
+        <li class="breadcrumb-item"><a href="/research">Research</a></li>
+        <li class="breadcrumb-item active">{{ niche.name }}</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="ms-auto d-flex gap-2">
+    <button class="btn btn-outline-secondary btn-sm" onclick="triggerNiche({{ niche.id }})">
+      <span class="material-icons-outlined me-1" style="vertical-align:middle;font-size:15px;">refresh</span>Re-run
+    </button>
+    <span class="badge {{ 'bg-success' if niche.enabled else 'bg-secondary' }} align-self-center">
+      {{ 'Enabled' if niche.enabled else 'Disabled' }}
+    </span>
+  </div>
+</div>
+
+<!-- Niche info + keyword editor -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card rounded-4 h-100">
+      <div class="card-header"><h6 class="mb-0">Niche Details</h6></div>
+      <div class="card-body">
+        <p class="mb-2"><strong>Name:</strong> {{ niche.name }}</p>
+        <p class="mb-2"><strong>Status:</strong>
+          <span class="badge {{ 'bg-success' if niche.enabled else 'bg-secondary' }}">
+            {{ 'Enabled' if niche.enabled else 'Disabled' }}
+          </span>
+        </p>
+        <div class="mb-2">
+          <strong>Keywords:</strong>
+          <div class="d-flex flex-wrap gap-1 mt-1">
+            {% for kw in niche.keywords %}
+            <span class="badge bg-light-primary text-primary">{{ kw }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="mt-3">
+          <label class="form-label text-secondary font-13">Edit Keywords (comma-separated)</label>
+          <textarea id="editKeywords" class="form-control form-control-sm" rows="2">{{ niche.keywords | join(', ') }}</textarea>
+          <button class="btn btn-sm btn-outline-primary mt-2" onclick="saveKeywords({{ niche.id }})">Save Keywords</button>
+          <button class="btn btn-sm btn-outline-{{ 'danger' if niche.enabled else 'success' }} mt-2 ms-1"
+            onclick="toggleNiche({{ niche.id }}, {{ 'false' if niche.enabled else 'true' }})">
+            {{ 'Disable Niche' if niche.enabled else 'Enable Niche' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card rounded-4 h-100">
+      <div class="card-header"><h6 class="mb-0">Opportunity Score History</h6></div>
+      <div class="card-body">
+        {% if chart_labels %}
+        <div id="scoreChart"></div>
+        {% else %}
+        <p class="text-secondary text-center py-4">No research runs yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if latest %}
+<!-- Latest stats row -->
+<div class="row row-cols-2 row-cols-xl-4 g-3 mb-4">
+  <div class="col">
+    <div class="card rounded-4 text-center">
+      <div class="card-body">
+        <h4 class="mb-0
+          {% if latest.opportunity_score >= 70 %}text-success
+          {% elif latest.opportunity_score >= 40 %}text-warning
+          {% else %}text-danger{% endif %}">{{ latest.opportunity_score }}</h4>
+        <small class="text-secondary">Opportunity Score</small>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card rounded-4 text-center">
+      <div class="card-body">
+        <h4 class="mb-0">{{ latest.total_listings_found }}</h4>
+        <small class="text-secondary">Listings Found</small>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card rounded-4 text-center">
+      <div class="card-body">
+        <h4 class="mb-0">${{ '%.2f' % latest.avg_price }}</h4>
+        <small class="text-secondary">Avg Price</small>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card rounded-4 text-center">
+      <div class="card-body">
+        <h4 class="mb-0">{{ latest.avg_views }}</h4>
+        <small class="text-secondary">Avg Views</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Top Listings table -->
+{% if latest.sample_listings %}
+<div class="card rounded-4 mb-4">
+  <div class="card-header"><h6 class="mb-0">Top Listings from Last Run</h6></div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Views</th>
+            <th>Favourites</th>
+            <th>Tags</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for listing in latest.sample_listings %}
+          <tr>
+            <td class="font-13">{{ listing.title[:80] }}</td>
+            <td>${{ '%.2f' % listing.price }}</td>
+            <td>{{ listing.views }}</td>
+            <td>{{ listing.num_favorers }}</td>
+            <td>
+              {% for tag in listing.tags[:4] %}
+              <span class="badge bg-light-secondary text-secondary me-1" style="font-size:10px;">{{ tag }}</span>
+              {% endfor %}
+            </td>
+            <td>
+              {% if listing.url %}
+              <a href="{{ listing.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                <span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">open_in_new</span>
+              </a>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Claude Analysis -->
+{% if latest.analysis_summary %}
+<div class="card rounded-4 mb-4">
+  <div class="card-header"><h6 class="mb-0">AI Analysis</h6></div>
+  <div class="card-body">
+    <p class="text-secondary" style="white-space:pre-line;">{{ latest.analysis_summary }}</p>
+
+    {% if latest.gaps_identified %}
+    <h6 class="mt-3">Market Gaps</h6>
+    <ul class="text-secondary font-13">
+      {% for gap in latest.gaps_identified %}
+      <li>{{ gap }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if latest.suggested_products %}
+    <h6 class="mt-3">Suggested Products</h6>
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+      {% for product in latest.suggested_products %}
+      <div class="col">
+        <div class="card rounded-4 border">
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <span class="fw-semibold font-14">{{ product.name }}</span>
+              <span class="badge bg-light-primary text-primary">${{ product.estimated_price }}</span>
+            </div>
+            <span class="badge bg-secondary mb-1">{{ product.type }}</span>
+            <p class="text-secondary font-13 mb-0">{{ product.reasoning }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endif %}
+
+<!-- Run History -->
+{% if results %}
+<div class="card rounded-4 mb-4">
+  <div class="card-header"><h6 class="mb-0">Run History</h6></div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Listings</th>
+            <th>Avg Price</th>
+            <th>Opportunity</th>
+            <th>Competition</th>
+            <th>Demand</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in results %}
+          <tr>
+            <td class="font-13 text-secondary">{{ r.created_at.strftime('%b %d, %Y %H:%M') if r.created_at else '—' }}</td>
+            <td>{{ r.total_listings_found }}</td>
+            <td>${{ '%.2f' % r.avg_price }}</td>
+            <td>
+              {% if r.opportunity_score >= 70 %}
+                <span class="badge bg-success">{{ r.opportunity_score }}</span>
+              {% elif r.opportunity_score >= 40 %}
+                <span class="badge bg-warning text-dark">{{ r.opportunity_score }}</span>
+              {% else %}
+                <span class="badge bg-danger">{{ r.opportunity_score }}</span>
+              {% endif %}
+            </td>
+            <td><span class="badge {% if r.competition_level == 'low' %}bg-success{% elif r.competition_level == 'high' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ r.competition_level | title }}</span></td>
+            <td><span class="badge {% if r.demand_signal == 'high' %}bg-success{% elif r.demand_signal == 'low' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ r.demand_signal | title }}</span></td>
+            <td><span class="badge {% if r.analysis_status == 'complete' %}bg-success{% elif r.analysis_status == 'pending_analysis' %}bg-warning text-dark{% else %}bg-danger{% endif %}">{{ r.analysis_status | replace('_', ' ') | title }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if chart_labels %}
+<script>
+var options = {
+  series: [{ name: 'Opportunity Score', data: {{ chart_scores | tojson }} }],
+  chart: { type: 'line', height: 180, toolbar: { show: false } },
+  stroke: { curve: 'smooth', width: 3 },
+  colors: ['#0d6efd'],
+  xaxis: { categories: {{ chart_labels | tojson }}, labels: { style: { fontSize: '11px' } } },
+  yaxis: { min: 0, max: 100 },
+  markers: { size: 4 },
+  tooltip: { theme: 'dark' },
+  grid: { borderColor: '#f0f0f0' },
+};
+var chart = new ApexCharts(document.querySelector("#scoreChart"), options);
+chart.render();
+</script>
+{% endif %}
+
+<script>
+function triggerNiche(nicheId) {
+  fetch('/api/research/trigger', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify([nicheId])
+  })
+  .then(r => r.json())
+  .then(data => { if (data.task_id) alert('Research queued — Task: ' + data.task_id); })
+  .catch(() => alert('Failed to queue research'));
+}
+
+function saveKeywords(nicheId) {
+  const raw = document.getElementById('editKeywords').value;
+  const keywords = raw.split(',').map(k => k.trim()).filter(k => k.length);
+  fetch('/api/research/niches/' + nicheId, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({keywords})
+  })
+  .then(r => r.json())
+  .then(() => { alert('Keywords saved'); window.location.reload(); })
+  .catch(() => alert('Failed to save keywords'));
+}
+
+function toggleNiche(nicheId, enable) {
+  fetch('/api/research/niches/' + nicheId, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({enabled: enable})
+  })
+  .then(r => r.json())
+  .then(() => window.location.reload())
+  .catch(() => alert('Failed to update niche'));
+}
+</script>
+{% endblock %}

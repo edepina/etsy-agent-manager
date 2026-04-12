@@ -15,6 +15,8 @@ services:
       - ./products:/app/products
       - ./app:/app/app
       - ./data:/app/data
+      - ./tests:/app/tests
+      - ./alembic:/app/alembic
     depends_on:
       db:
         condition: service_healthy

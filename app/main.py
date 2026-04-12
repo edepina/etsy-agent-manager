@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.database import engine, Base
-from app.routes import dashboard, agents, products, reviews, analytics, api, auth
+from app.routes import dashboard, agents, products, reviews, analytics, api, auth, research
 
 
 @asynccontextmanager
@@ -64,4 +64,5 @@ app.include_router(agents.router)
 app.include_router(products.router)
 app.include_router(reviews.router)
 app.include_router(analytics.router)
+app.include_router(research.router)
 app.include_router(api.router)

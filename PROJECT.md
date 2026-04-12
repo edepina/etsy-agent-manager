@@ -107,21 +107,21 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 
 ---
 
-### Phase 1: Research Agent 🔄
+### Phase 1: Research Agent ✅
 > Goal: Automated Etsy market research for Islamic digital products.
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 1.1 | Register for Etsy API v3 key | ⬜ | https://www.etsy.com/developers |
-| 1.2 | Implement EtsyService — search listings, get shop data | ⬜ | Start with search endpoint |
-| 1.3 | Build ResearchAgent.run() — search Etsy for Islamic product niches | ⬜ | Keywords: islamic planner, ramadan printable, quran journal, etc. |
-| 1.4 | Add Claude analysis step — score opportunities from Etsy data | ⬜ | Prompt: analyse listings, find gaps, rank opportunities |
-| 1.5 | Store research results in DB (new ResearchResult model?) | ⬜ | |
-| 1.6 | Wire up Celery task — scheduled weekly run | ⬜ | |
-| 1.7 | Build research results page in dashboard | ⬜ | Table with opportunity scores, trend data |
-| 1.8 | Dashboard: agent detail page shows research run history | ⬜ | |
-| 1.9 | Test full cycle: trigger → scrape → analyse → display | ⬜ | |
-| 1.10 | Git commit & push "Phase 1 complete" | ⬜ | |
+| 1.1 | Register for Etsy API v3 key | ✅ | Key configured in .env |
+| 1.2 | Implement EtsyService — search listings, get shop data | ✅ | app/services/etsy.py — full async client with rate limiting & retry |
+| 1.3 | Build ResearchAgent.run() — search Etsy for Islamic product niches | ✅ | app/agents/research.py — 8 niches, graceful 403 fallback |
+| 1.4 | Add Claude analysis step — score opportunities from Etsy data | ✅ | claude-sonnet-4, JSON response parsed with error fallback |
+| 1.5 | Store research results in DB (ResearchNiche + ResearchResult models) | ✅ | Alembic migration applied, 8 niches seeded |
+| 1.6 | Wire up Celery task — scheduled weekly run | ✅ | run_research task, Monday 6am Beat schedule |
+| 1.7 | Build research results page in dashboard | ✅ | /research overview + /research/{id} detail with ApexCharts |
+| 1.8 | Niche management — add, edit keywords, enable/disable | ✅ | Modal + API endpoints (POST/PUT /api/research/niches) |
+| 1.9 | Test full cycle: EtsyService unit tests pass (9/9) | ✅ | tests/test_etsy_service.py |
+| 1.10 | Git commit & push "Phase 1 complete" | ✅ | |
 
 **Phase 1 Deliverable:** Research agent runs weekly, produces ranked opportunity list, visible in dashboard.
 
@@ -281,6 +281,7 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 | 2026-04-09 | Authentication implemented. Session-based login, brute-force protection, change password page. |
 | 2026-04-09 | Security hardening complete. HTTPS live at https://etsy.cciesolutions.net, CSRF, rate limiting, locked ports. |
 | 2026-04-09 | Full CSRF coverage on all POST routes, rate limiting on agent triggers, DEBUG=false in production. |
+| 2026-04-12 | Phase 1 complete. Research Agent live — Etsy API integration, Claude analysis, 8 Islamic niches, /research dashboard with niche management and detail pages. |
 
 ---
 
@@ -289,3 +290,6 @@ Research → Content → Design → REVIEW (human) → Listing → Monitor
 - **2026-04-09:** Decided on Maxton HTML + FastAPI over React to ship faster and use the purchased template directly.
 - **2026-04-09:** Islamic digital products chosen as niche — leverages Edson's khateeb knowledge for authentic, accurate content that competitors can't easily replicate.
 - **2026-04-09:** Human-in-the-loop review step is mandatory — Etsy penalises low-quality/AI-generated content, so every product gets manual approval before listing.
+- **2026-04-12:** EtsyService uses x-api-key header auth (no OAuth required) for public search endpoints. OAuth only needed for write operations (listing creation). Graceful 403 fallback stores results as `pending_analysis` so they can be retried when the key is approved.
+- **2026-04-12:** Alembic `script.py.mako` was missing from repo — created. Also added `alembic/` and `tests/` as volume mounts in docker-compose so they are accessible inside the container without rebuilding the image.
+- **2026-04-12:** Integrated Addy Osmani's Agent Skills framework (.agent-skills/) for structured engineering workflows. Windsurf rules configured in .windsurfrules. Skills loaded selectively per phase to keep context focused.

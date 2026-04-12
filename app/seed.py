@@ -13,6 +13,7 @@ from app.models.agent import AgentRun
 from app.models.product import Product
 from app.models.workflow import Workflow
 from app.models.metric import DailyMetric
+from app.models.research import ResearchNiche
 
 NICHES = [
     "Ramadan Planner", "Islamic Wall Art", "Eid Invitation", "Quran Journal",
@@ -47,7 +48,59 @@ SAMPLE_TITLES = [
 ]
 
 
+INITIAL_NICHES = [
+    {
+        "name": "Ramadan Planners",
+        "keywords": ["ramadan planner", "ramadan printable", "ramadan journal", "ramadan tracker", "ramadan calendar"],
+    },
+    {
+        "name": "Islamic Wall Art",
+        "keywords": ["islamic wall art", "islamic print", "bismillah art", "allah wall art", "arabic calligraphy print", "islamic nursery art"],
+    },
+    {
+        "name": "Qur'an Journals",
+        "keywords": ["quran journal", "quran study guide", "quran reflection journal", "quran tracker", "islamic journal"],
+    },
+    {
+        "name": "Du'a Collections",
+        "keywords": ["dua printable", "dua cards", "dua book", "islamic prayer cards", "daily dua", "morning dua"],
+    },
+    {
+        "name": "Islamic Wedding",
+        "keywords": ["islamic wedding invitation", "nikah invitation", "walimah invitation", "muslim wedding", "nikkah printable"],
+    },
+    {
+        "name": "Hajj & Umrah",
+        "keywords": ["hajj planner", "umrah checklist", "hajj printable", "hajj journal", "umrah planner", "hajj packing list"],
+    },
+    {
+        "name": "Islamic Education",
+        "keywords": ["islamic homeschool", "islamic worksheet", "arabic alphabet printable", "islamic colouring", "islamic activity", "ramadan activity kids"],
+    },
+    {
+        "name": "Eid Printables",
+        "keywords": ["eid decoration", "eid printable", "eid banner", "eid card printable", "eid party", "eid mubarak printable"],
+    },
+]
+
+
 async def seed(db: AsyncSession) -> None:
+    print("Seeding research niches...")
+    for niche_data in INITIAL_NICHES:
+        from sqlalchemy import select
+        existing = await db.scalar(
+            select(ResearchNiche).where(ResearchNiche.name == niche_data["name"])
+        )
+        if not existing:
+            db.add(ResearchNiche(
+                name=niche_data["name"],
+                keywords=niche_data["keywords"],
+                enabled=True,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+            ))
+    await db.flush()
+
     print("Seeding products...")
     products = []
     for i, title in enumerate(SAMPLE_TITLES):

@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Research — Etsy Agent Manager{% endblock %}
+
+{% block content %}
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">Research</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item"><a href="/"><span class="material-icons-outlined">home</span></a></li>
+        <li class="breadcrumb-item active">Research</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="ms-auto">
+    <form action="/api/research/trigger" method="post" id="trigger-research-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="button" class="btn btn-primary" onclick="triggerResearch()">
+        <span class="material-icons-outlined me-1" style="vertical-align:middle;">science</span>Run Research Agent
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Summary cards -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3 mb-4">
+  <div class="col">
+    <div class="card rounded-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="widget-icon bg-light-primary text-primary">
+            <span class="material-icons-outlined">category</span>
+          </div>
+          <div>
+            <h4 class="mb-0">{{ total_niches }}</h4>
+            <small class="text-secondary">Niches Tracked</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card rounded-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="widget-icon bg-light-success text-success">
+            <span class="material-icons-outlined">check_circle</span>
+          </div>
+          <div>
+            <h4 class="mb-0">{{ enabled_niches }}</h4>
+            <small class="text-secondary">Active Niches</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card rounded-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="widget-icon bg-light-warning text-warning">
+            <span class="material-icons-outlined">emoji_events</span>
+          </div>
+          <div>
+            <h4 class="mb-0">{{ top_result.opportunity_score if top_result else '—' }}</h4>
+            <small class="text-secondary">Top Opportunity Score</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card rounded-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="widget-icon bg-light-info text-info">
+            <span class="material-icons-outlined">schedule</span>
+          </div>
+          <div>
+            <p class="mb-0 fw-semibold" style="font-size:13px;">
+              {{ last_run.created_at.strftime('%b %d, %Y') if last_run and last_run.created_at else 'Never' }}
+            </p>
+            <small class="text-secondary">Last Research Run</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Niche Results Table -->
+<div class="card rounded-4 mb-4">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <h6 class="mb-0">Niche Research Results</h6>
+    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addNicheModal">
+      <span class="material-icons-outlined me-1" style="font-size:16px;vertical-align:middle;">add</span>Add Niche
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table id="researchTable" class="table table-striped align-middle" style="width:100%">
+        <thead>
+          <tr>
+            <th>Niche</th>
+            <th>Listings Found</th>
+            <th>Avg Price</th>
+            <th>Avg Views</th>
+            <th>Avg Favs</th>
+            <th>Opportunity</th>
+            <th>Competition</th>
+            <th>Demand</th>
+            <th>Last Run</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in niche_rows %}
+          {% set niche = row.niche %}
+          {% set r = row.latest %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                {% if niche.enabled %}
+                  <span class="badge bg-success-subtle text-success" style="font-size:10px;">ON</span>
+                {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary" style="font-size:10px;">OFF</span>
+                {% endif %}
+                <span class="fw-semibold">{{ niche.name }}</span>
+              </div>
+            </td>
+            <td>{{ r.total_listings_found if r else '—' }}</td>
+            <td>{{ ('$%.2f' % r.avg_price) if r else '—' }}</td>
+            <td>{{ r.avg_views if r else '—' }}</td>
+            <td>{{ r.avg_favourites if r else '—' }}</td>
+            <td>
+              {% if r %}
+                {% if r.opportunity_score >= 70 %}
+                  <span class="badge bg-success">{{ r.opportunity_score }}</span>
+                {% elif r.opportunity_score >= 40 %}
+                  <span class="badge bg-warning text-dark">{{ r.opportunity_score }}</span>
+                {% else %}
+                  <span class="badge bg-danger">{{ r.opportunity_score }}</span>
+                {% endif %}
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              {% if r %}
+                <span class="badge {% if r.competition_level == 'low' %}bg-success{% elif r.competition_level == 'high' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                  {{ r.competition_level | title }}
+                </span>
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              {% if r %}
+                <span class="badge {% if r.demand_signal == 'high' %}bg-success{% elif r.demand_signal == 'low' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                  {{ r.demand_signal | title }}
+                </span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="text-secondary font-13">
+              {{ r.created_at.strftime('%b %d, %Y') if r and r.created_at else 'Never' }}
+            </td>
+            <td>
+              <a href="/research/{{ niche.id }}" class="btn btn-sm btn-outline-primary me-1">Details</a>
+              <button class="btn btn-sm btn-outline-secondary toggle-niche"
+                data-niche-id="{{ niche.id }}"
+                data-enabled="{{ 'true' if niche.enabled else 'false' }}">
+                {{ 'Disable' if niche.enabled else 'Enable' }}
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Top Opportunity Insights -->
+{% if top_result and top_result.analysis_summary %}
+<div class="card rounded-4 mb-4">
+  <div class="card-header">
+    <h6 class="mb-0">
+      <span class="material-icons-outlined me-2" style="vertical-align:middle;font-size:18px;">lightbulb</span>
+      Latest AI Insights — Top Opportunity
+    </h6>
+  </div>
+  <div class="card-body">
+    <p class="text-secondary" style="white-space:pre-line;">{{ top_result.analysis_summary }}</p>
+
+    {% if top_result.suggested_products %}
+    <h6 class="mt-3">Suggested Products</h6>
+    <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+      {% for product in top_result.suggested_products %}
+      <div class="col">
+        <div class="card rounded-4 border">
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <span class="fw-semibold font-14">{{ product.name }}</span>
+              <span class="badge bg-light-primary text-primary">${{ product.estimated_price }}</span>
+            </div>
+            <div class="mb-1"><small class="badge bg-secondary">{{ product.type }}</small></div>
+            <p class="text-secondary font-13 mb-0">{{ product.reasoning }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if top_result.gaps_identified %}
+    <h6 class="mt-3">Market Gaps Identified</h6>
+    <ul class="text-secondary font-13">
+      {% for gap in top_result.gaps_identified %}
+      <li>{{ gap }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Add Niche Modal -->
+<div class="modal fade" id="addNicheModal" tabindex="-1" aria-labelledby="addNicheModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addNicheModalLabel">Add Research Niche</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Niche Name</label>
+          <input type="text" id="newNicheName" class="form-control" placeholder="e.g. Islamic Finance Planners">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Keywords <small class="text-secondary">(comma-separated)</small></label>
+          <textarea id="newNicheKeywords" class="form-control" rows="3"
+            placeholder="islamic finance, halal investing, zakat planner"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="addNiche()">Add Niche</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function triggerResearch() {
+  fetch('/api/research/trigger', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(null)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.task_id) {
+      alert('Research agent queued! Task ID: ' + data.task_id);
+    }
+  })
+  .catch(() => alert('Failed to trigger research agent'));
+}
+
+function addNiche() {
+  const name = document.getElementById('newNicheName').value.trim();
+  const keywordsRaw = document.getElementById('newNicheKeywords').value.trim();
+  if (!name || !keywordsRaw) { alert('Please fill in all fields'); return; }
+  const keywords = keywordsRaw.split(',').map(k => k.trim()).filter(k => k.length);
+
+  fetch('/api/research/niches', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name, keywords})
+  })
+  .then(r => {
+    if (r.status === 409) { alert('A niche with that name already exists'); return null; }
+    return r.json();
+  })
+  .then(data => {
+    if (data && data.id) { window.location.reload(); }
+  })
+  .catch(() => alert('Failed to add niche'));
+}
+
+document.querySelectorAll('.toggle-niche').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const nicheId = btn.dataset.nicheId;
+    const currentlyEnabled = btn.dataset.enabled === 'true';
+    fetch('/api/research/niches/' + nicheId, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({enabled: !currentlyEnabled})
+    })
+    .then(r => r.json())
+    .then(() => window.location.reload())
+    .catch(() => alert('Failed to update niche'));
+  });
+});
+</script>
+{% endblock %}
